@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ---------- Design tokens ----------
+   Dark forest palette: deep green-black ground, sage and stone text,
+   one acid-lime accent (the "glow") used sparingly for actions.
+   Token names are semantic: "paper" is the page ground, "ink" the text. */
+@theme {
+  --color-night: #091510;      /* deepest: footer, image overlays */
+  --color-paper: #0f1f17;      /* page background */
+  --color-paper-deep: #152a20; /* cards, inputs, skeletons */
+  --color-sand: #1e3a2e;       /* raised / hover surfaces */
+  --color-moss: #3e5a3f;
+  --color-sage: #6b7f67;
+  --color-taupe: #6b7f67;      /* icons, decorative strokes */
+  --color-stone: #c7cbb8;
+  --color-ink: #e6e9da;        /* primary text */
+  --color-ink-soft: #c7cbb8;
+  --color-muted: #97a592;      /* secondary text (AA on all surfaces) */
+  --color-line: #26412f;
+  --color-olive: #3d4337;
+  --color-glow: #d8f06a;       /* accent */
+  --color-success: #a9c48e;
+  --color-warn: #e3c56b;
+  --color-rust: #e8896b;       /* errors */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  /* Named directly (not via --font-unbounded) so next/font's Arial-based
+     "Unbounded Fallback" can't supply the Mongolian "Ү" that Unbounded lacks;
+     Montserrat provides it instead. */
+  --font-display: "Unbounded", "Montserrat", var(--font-onest), ui-sans-serif, sans-serif;
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-up: fade-up 0.7s var(--ease-soft) both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-slide-in: slide-in 0.35s var(--ease-soft) both;
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes slide-in {
+    from { transform: translateX(100%); }
+    to { transform: none; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-glow);
+    color: var(--color-paper);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-glow);
+    outline-offset: 2px;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Small mono label, like a hang tag: used across the site */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+/* Soft lime glow behind dark sections (echoes the brand palette) */
+@utility glow-bg {
+  background:
+    radial-gradient(60% 50% at 0% 0%, rgb(216 240 106 / 0.16), transparent 70%),
+    radial-gradient(50% 45% at 100% 100%, rgb(216 240 106 / 0.10), transparent 70%),
+    var(--color-paper);
+}
+
+/* Fine film grain for a vintage texture. Pure CSS, no image request. */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
 }

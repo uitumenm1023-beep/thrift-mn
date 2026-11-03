@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="mn"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Unbounded:wght@600;700;800&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+  :root { --night:#091510; --paper:#0f1f17; --deep:#152a20; --sand:#1e3a2e; --moss:#3e5a3f; --stone:#c7cbb8; --ink:#e6e9da; --muted:#97a592; --line:#26412f; --glow:#d8f06a; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:var(--w); height:var(--h); overflow:hidden; font-family:Onest, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .poster { position:relative; width:100%; height:100%; overflow:hidden; display:flex; flex-direction:column; padding:var(--pad);
+    background:
+      radial-gradient(60% 40% at 0% 0%, rgb(216 240 106 / .2), transparent 70%),
+      radial-gradient(55% 35% at 100% 100%, rgb(216 240 106 / .14), transparent 70%), var(--paper); }
+  .poster::after { content:""; position:absolute; inset:0; opacity:.08; pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  .top { display:flex; justify-content:space-between; align-items:center; }
+  .logo { font-family:Unbounded, Montserrat, sans-serif; font-weight:700; letter-spacing:-.035em; line-height:1; }
+  .logo span { color:var(--glow); }
+  .mono { font-family:"JetBrains Mono"; text-transform:uppercase; letter-spacing:.16em; color:var(--muted); }
+  .dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:var(--glow); box-shadow:0 0 14px var(--glow); margin-right:.6em; vertical-align:middle; }
+  h1 { font-family:Unbounded, Montserrat, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:-.03em; line-height:.95; }
+  h1 .lime { color:var(--glow); }
+  .stage { position:relative; flex:1; }
+  .arch { position:absolute; overflow:hidden; border-radius:999px 999px 36px 36px; background:#e4e7de; box-shadow:0 0 0 2px var(--line), 0 40px 80px -30px rgba(0,0,0,.7); }
+  .card { position:absolute; overflow:hidden; border-radius:24px; background:#e4e7de; box-shadow:0 0 0 2px var(--line), 0 30px 60px -20px rgba(0,0,0,.7); }
+  .arch img, .card img { width:100%; height:100%; object-fit:cover; display:block; }
+  .sticker { position:absolute; border-radius:999px; background:var(--glow); color:var(--night); font-family:"JetBrains Mono"; font-weight:500;
+    text-transform:uppercase; letter-spacing:.14em; box-shadow:0 0 50px -6px rgb(216 240 106 / .75); white-space:nowrap; }
+  .ticker { margin:0 calc(-1 * var(--pad)); background:var(--glow); color:var(--night); white-space:nowrap; overflow:hidden;
+    font-family:Unbounded, Montserrat, sans-serif; font-weight:700; text-transform:uppercase; }
+  .ticker b { color:var(--moss); padding:0 .7em; }
+  .bottom { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; }
+  .cta { border-radius:999px; border:2px solid rgb(230 233 218 / .3); padding:.85em 1.4em; font-weight:600; white-space:nowrap; }
+</style></head>
+<body>
+<div class="poster" id="p"></div>
+<script>
+const v = new URLSearchParams(location.search).get("v") || "post";
+const story = v === "story";
+const W = 1080, H = story ? 1920 : 1350;
+document.documentElement.style.setProperty("--w", W + "px");
+document.documentElement.style.setProperty("--h", H + "px");
+document.documentElement.style.setProperty("--pad", story ? "84px" : "72px");
+const img = (s) => `demo/${s.startsWith("rack") ? "shops" : "products"}/${s}.webp`;
+const words = ["Coming soon", "Удахгүй", "Vintage", "Second hand", "Улаанбаатар", "Pre-loved"];
+const tick = [...words, ...words].map((w) => `<span>${w}</span><b>✦</b>`).join("");
+
+// Stage height differs: story has more room for the collage.
+const S = story ? { arch: [300, 140, 480, 640], c1: [70, 430, 250, 310, -8], c2: [740, 90, 240, 300, 7], c3: [730, 560, 250, 290, 5], sticker: [70, 160, 30, -7] }
+                : { arch: [330, 30, 400, 520], c1: [40, 250, 220, 270, -8], c2: [770, 20, 210, 260, 7], c3: [770, 300, 210, 240, 5], sticker: [40, 60, 24, -7] };
+
+document.getElementById("p").innerHTML = `
+  <div class="top">
+    <div class="logo" style="font-size:${story ? 44 : 40}px">thrift<span>.mn</span></div>
+    <div class="mono" style="font-size:${story ? 20 : 18}px"><span class="dot"></span>Удахгүй</div>
+  </div>
+
+  <div style="margin-top:${story ? 110 : 56}px">
+    <div class="mono" style="font-size:${story ? 22 : 19}px">Second hand · Vintage · Улаанбаатар</div>
+    <h1 style="font-size:${story ? 122 : 126}px;margin-top:${story ? 26 : 20}px">Удахгүй<br><span class="lime">нээгдэнэ.</span></h1>
+    <p style="font-size:${story ? 32 : 28}px;line-height:1.4;color:var(--stone);margin-top:${story ? 34 : 24}px;max-width:${story ? 920 : 860}px">
+      Хотын second hand, vintage дэлгүүрүүдийн хувцас <b style="color:var(--ink);font-weight:600">нэг дор.</b>
+    </p>
+  </div>
+
+  <div class="stage" style="margin-top:${story ? 70 : 40}px">
+    <div class="arch" style="left:${S.arch[0]}px;top:${S.arch[1]}px;width:${S.arch[2]}px;height:${S.arch[3]}px"><img src="${img("rack-1")}"></div>
+    <div class="card" style="left:${S.c1[0]}px;top:${S.c1[1]}px;width:${S.c1[2]}px;height:${S.c1[3]}px;transform:rotate(${S.c1[4]}deg)"><img src="${img("hoodie-forest")}"></div>
+    <div class="card" style="left:${S.c2[0]}px;top:${S.c2[1]}px;width:${S.c2[2]}px;height:${S.c2[3]}px;transform:rotate(${S.c2[4]}deg)"><img src="${img("boot-brown")}"></div>
+    <div class="card" style="left:${S.c3[0]}px;top:${S.c3[1]}px;width:${S.c3[2]}px;height:${S.c3[3]}px;transform:rotate(${S.c3[4]}deg)"><img src="${img("beanie-camel")}"></div>
+    <div class="sticker" style="left:${S.sticker[0]}px;top:${S.sticker[1]}px;font-size:${S.sticker[2]}px;padding:.65em 1.1em;transform:rotate(${S.sticker[3]}deg)">Coming soon</div>
+  </div>
+
+  <div class="ticker" style="font-size:${story ? 30 : 26}px;padding:${story ? 22 : 18}px 0;margin-top:${story ? 40 : 28}px">${tick}</div>
+
+  <div class="bottom" style="margin-top:${story ? 56 : 36}px">
+    <div>
+      <div style="font-family:Unbounded, Montserrat, sans-serif;font-weight:700;font-size:${story ? 40 : 34}px;letter-spacing:-.02em">Дагаад хүлээгээрэй</div>
+      <div class="mono" style="font-size:${story ? 19 : 16}px;margin-top:12px">Асуух зүйл байвал DM бичээрэй</div>
+    </div>
+    <div class="cta" style="font-size:${story ? 26 : 22}px">thrift.mn</div>
+  </div>`;
+window.ready = Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.complete ? 0 : new Promise((r) => (i.onload = i.onerror = r)))]);
+</script>
+</body></html>

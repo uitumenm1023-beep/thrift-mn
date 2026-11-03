@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<title>Thrift.mn reel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Unbounded:wght@500;700;800&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=block&subset=cyrillic,cyrillic-ext,latin" rel="stylesheet">
+<style>
+  :root {
+    --night:#091510; --paper:#0f1f17; --deep:#152a20; --sand:#1e3a2e; --moss:#3e5a3f;
+    --sage:#6b7f67; --stone:#c7cbb8; --ink:#e6e9da; --muted:#97a592; --line:#26412f; --glow:#d8f06a;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { width:540px; height:960px; overflow:hidden; background:var(--paper); }
+  body { font-family:Onest, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
+  #stage { position:relative; width:540px; height:960px; overflow:hidden;
+    background:
+      radial-gradient(70% 45% at 0% 0%, rgb(216 240 106 / .18), transparent 70%),
+      radial-gradient(60% 40% at 100% 100%, rgb(216 240 106 / .12), transparent 70%),
+      var(--paper); }
+  #grain { position:absolute; inset:0; opacity:.08; pointer-events:none; z-index:50;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  .abs { position:absolute; will-change:transform, opacity; }
+  .display { font-family:Unbounded, Montserrat, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:-.02em; line-height:1.0; }
+  .mono { font-family:"JetBrains Mono", monospace; text-transform:uppercase; letter-spacing:.14em; }
+  .lime { color:var(--glow); }
+  .logo { font-family:Unbounded, Montserrat, sans-serif; font-weight:700; letter-spacing:-.03em; }
+  .logo span { color:var(--glow); }
+  .pill { border-radius:999px; background:var(--glow); color:var(--night); font-family:"JetBrains Mono", monospace;
+    font-weight:500; text-transform:uppercase; letter-spacing:.12em; box-shadow:0 0 40px -6px rgb(216 240 106 / .7); }
+  .arch { border-radius:999px 999px 28px 28px; overflow:hidden; background:var(--sand); box-shadow:0 0 0 1px var(--line); }
+  .arch img, .card img, .frame img { width:100%; height:100%; object-fit:cover; display:block; }
+  .card { border-radius:26px; overflow:hidden; background:var(--deep); box-shadow:0 0 0 1px var(--line), 0 30px 60px -20px rgba(0,0,0,.6); }
+  .ticker { left:-20px; right:-20px; height:46px; background:var(--glow); color:var(--night); display:flex; align-items:center;
+    overflow:hidden; white-space:nowrap; }
+  .ticker .row { display:flex; gap:22px; font-family:Unbounded, Montserrat, sans-serif; font-weight:700; font-size:17px; text-transform:uppercase; }
+  .ticker .row b { color:var(--moss); font-weight:700; }
+  .tag { font-family:"JetBrains Mono", monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="grain"></div>
+<script>
+// ---------- tiny deterministic animation kit ----------
+// Each element gets keyframes [[time, {props}], ...]; render(t) interpolates.
+const stage = document.getElementById("stage");
+const ease = {
+  out: (x) => 1 - Math.pow(1 - x, 3),
+  inOut: (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  back: (x) => { const c1 = 1.7, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  lin: (x) => x,
+};
+const tracks = [];
+function el(html, style = {}, parent = stage) {
+  const d = document.createElement("div");
+  d.className = "abs";
+  d.innerHTML = html;
+  Object.assign(d.style, style);
+  parent.appendChild(d);
+  return d;
+}
+const DEF = { o: 1, x: 0, y: 0, s: 1, r: 0, b: 0 };
+function key(node, frames, e = "out") {
+  tracks.push({ node, frames: frames.map(([t, p]) => [t, { ...DEF, ...p }]), e });
+  return node;
+}
+function apply(node, p) {
+  node.style.opacity = p.o;
+  node.style.transform = `translate(${p.x}px, ${p.y}px) scale(${p.s}) rotate(${p.r}deg)`;
+  node.style.filter = p.b ? `blur(${p.b}px)` : "none";
+}
+function render(t) {
+  for (const { node, frames, e } of tracks) {
+    if (t <= frames[0][0]) { apply(node, frames[0][1]); continue; }
+    const last = frames[frames.length - 1];
+    if (t >= last[0]) { apply(node, last[1]); continue; }
+    for (let i = 0; i < frames.length - 1; i++) {
+      const [t0, a] = frames[i], [t1, b] = frames[i + 1];
+      if (t >= t0 && t <= t1) {
+        const k = ease[e]((t - t0) / (t1 - t0 || 1));
+        const p = {};
+        for (const kk in DEF) p[kk] = a[kk] + (b[kk] - a[kk]) * k;
+        apply(node, p);
+        break;
+      }
+    }
+  }
+  for (const fn of custom) fn(t);
+}
+const custom = [];
+// Shorthand: appear at t (from offset), hold, leave at t2.
+function inout(node, t1, t2, from = { o: 0, y: 30 }, to = { o: 0, y: -30 }, d = .45) {
+  return key(node, [[t1, from], [t1 + d, {}], [t2, {}], [t2 + d, to]]);
+}
+function ticker(top, t0, t1, words) {
+  const node = el(`<div class="row">${[...words, ...words, ...words].map((w) => `<span>${w}</span><b>✦</b>`).join("")}</div>`, { top: top + "px" });
+  node.classList.add("ticker");
+  const row = node.firstChild;
+  custom.push((t) => { row.style.transform = `translateX(${-((t - t0) * 70) % 600}px)`; });
+  return inout(node, t0, t1, { o: 0, s: 1.05 }, { o: 0 }, .3);
+}
+const IMG = (slug) => slug.startsWith("rack") ? `demo/shops/${slug}.webp` : `demo/products/${slug}.webp`;
+
+// ---------- reels ----------
+const P = {
+  hoodie: "hoodie-stone", hoodieGreen: "hoodie-forest", coat: "coat-camel", coatDark: "coat-charcoal", cardigan: "cardigan-forest",
+  cardiganCream: "cardigan-cream", boot: "boot-brown", bomber: "bomber-olive", jeans: "jeans-indigo", tote: "tote-canvas",
+  beanie: "beanie-moss", sneaker: "sneaker-white", crossbody: "crossbody-brown", sweat: "sweatshirt-sage", shirt: "shirt-stone",
+  rack1: "rack-1", rack2: "rack-2", rack3: "rack-3",
+};
+
+function productCard({ img, shop, name, price }, w = 330, h = 470) {
+  return `<div class="card" style="width:${w}px">
+    <div style="height:${h}px">${`<img src="${IMG(img)}">`}</div>
+    <div style="padding:16px 18px 18px">
+      <div class="tag">${shop}</div>
+      <div style="font-size:19px;font-weight:600;margin-top:6px">${name}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <span class="mono" style="color:var(--glow);font-size:17px;letter-spacing:.02em;font-weight:500">${price}</span>
+        <span class="tag" style="display:flex;align-items:center;gap:6px"><i style="width:7px;height:7px;border-radius:50%;background:#a9c48e;display:inline-block"></i>Худалдаанд</span>
+      </div>
+    </div></div>`;
+}
+
+const REELS = {
+  // 1) Brand intro
+  intro() {
+    const D = 15;
+    // Hook
+    const words = [["ТАНЫ", 0.15], ["ХАЙЖ", 0.4], ["БАЙСАН", 0.65], ["ХУВЦАС", 1.2], ["<span class='lime'>ЭНД</span>", 1.55], ["БАЙНА.", 1.85]];
+    words.forEach(([w, t], i) => {
+      const n = el(`<div class="display" style="font-size:${i < 3 ? 54 : 58}px">${w}</div>`, { left: "40px", top: 230 + i * 66 + "px" });
+      key(n, [[t, { o: 0, y: 40, s: 1.15, b: 6 }], [t + .35, {}], [3.3, {}], [3.75, { o: 0, x: -60 }]], "back");
+    });
+    key(el(`<div class="mono" style="font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center"><i style="width:7px;height:7px;border-radius:50%;background:var(--glow);box-shadow:0 0 12px var(--glow)"></i>Улаанбаатар · Second hand</div>`, { left: "40px", top: "190px" }),
+      [[0, { o: 0 }], [.4, {}], [3.3, {}], [3.7, { o: 0 }]]);
+
+    // Product carousel
+    const items = [
+      { img: P.hoodie, shop: "Urban Vintage", name: "Оверсайз hoodie", price: "65,000₮" },
+      { img: P.coat, shop: "Thrift House", name: "Тэмээн пальто", price: "175,000₮" },
+      { img: P.cardigan, shop: "Retro Closet", name: "Ногоон кардиган", price: "72,000₮" },
+      { img: P.boot, shop: "Vintage UB", name: "Челси гутал", price: "120,000₮" },
+    ];
+    const T0 = 3.5, step = 1.45;
+    items.forEach((it, i) => {
+      const n = el(productCard(it), { left: "105px", top: "190px" });
+      const a = T0 + i * step;
+      key(n, [[a - .05, { o: 0, x: 380, r: 8 }], [a + .4, {}], [a + step - .1, {}], [a + step + .35, { o: 0, x: -380, r: -8 }]], "inOut");
+    });
+    key(el(`<div class="pill" style="padding:10px 18px;font-size:12px">One of a kind</div>`, { left: "300px", top: "160px" }),
+      [[T0 + .2, { o: 0, s: .6, r: -6 }], [T0 + .6, { r: -6 }], [T0 + 4 * step - .2, { r: -6 }], [T0 + 4 * step + .2, { o: 0, r: -6 }]], "back");
+
+    // Value line + ticker
+    const V = 9.6;
+    inout(el(`<div class="display" style="font-size:40px;line-height:1.08">Хотын<br>second hand<br><span class="lime">нэг дор</span></div>`, { left: "40px", top: "250px" }), V, 12.2);
+    inout(el(`<div style="font-size:19px;color:var(--stone);line-height:1.45;width:440px">Дэлгүүрүүдийн барааг үзээд, Instagram, Facebook эсвэл утсаар шууд холбогд.</div>`, { left: "40px", top: "470px" }), V + .3, 12.2);
+    ticker(600, V + .1, 12.2, ["Vintage", "Second hand", "Pre-loved", "One of a kind", "Ulaanbaatar"]);
+
+    // End card
+    const E = 12.4;
+    key(el(`<div class="logo" style="font-size:64px">thrift<span>.mn</span></div>`, { left: "0", width: "540px", textAlign: "center", top: "330px" }),
+      [[E, { o: 0, s: .8, b: 8 }], [E + .5, {}]], "back");
+    key(el(`<div class="pill" style="padding:16px 30px;font-size:15px">Бидэнтэй холбогдоорой</div>`, { left: "0", width: "540px", display: "flex", justifyContent: "center", top: "440px" }),
+      [[E + .4, { o: 0, y: 20 }], [E + .8, {}]]);
+    key(el(`<div class="tag" style="font-size:12px">Instagram-аар DM бичээрэй</div>`, { left: "0", width: "540px", textAlign: "center", top: "520px" }),
+      [[E + .7, { o: 0 }], [E + 1.1, {}]]);
+    return D;
+  },
+
+  // 2) How it works
+  how() {
+    const D = 14;
+    inout(el(`<div class="mono" style="font-size:12px;color:var(--muted)">Thrift.mn · хэрхэн ажилладаг</div>`, { left: "40px", top: "200px" }), .1, 2.6, { o: 0 });
+    key(el(`<div class="display" style="font-size:58px;line-height:1.02">Хүссэн<br>хувцсаа<br><span style="display:inline-flex;align-items:center;gap:14px;margin-top:10px"><span style="display:inline-grid;place-items:center;width:74px;height:74px;border-radius:50%;background:var(--glow);color:var(--night);font-size:46px;box-shadow:0 0 36px -4px rgb(216 240 106 / .7)">3</span><span class="lime" style="font-size:50px">алхмаар</span></span></div>`, { left: "40px", top: "235px" }),
+      [[.2, { o: 0, y: 50, s: 1.1 }], [.7, {}], [2.6, {}], [3, { o: 0, y: -40 }]], "back");
+    key(el(`<div class="arch" style="width:190px;height:250px"><img src="${IMG(P.rack1)}"></div>`, { left: "320px", top: "500px" }),
+      [[.5, { o: 0, y: 60 }], [1, {}], [2.6, {}], [3, { o: 0 }]]);
+
+    const steps = [
+      { n: "01", title: "Дэлгүүрээ сонго", text: "Улаанбаатарын баталгаажсан second hand, vintage дэлгүүрүүд.", imgs: [P.rack2, P.rack3] },
+      { n: "02", title: "Хувцсаа ол", text: "Ангилал, үнэ, хэмжээ, төлвөөр шүүгээд яг хүссэнээ ол.", imgs: [P.jeans, P.crossbody] },
+      { n: "03", title: "Шууд холбогд", text: "Instagram, Facebook эсвэл утсаар дэлгүүртэй шууд тохиролц.", imgs: [P.sneaker, P.beanie] },
+    ];
+    steps.forEach((s, i) => {
+      const a = 3 + i * 3, b = a + 2.75;
+      key(el(`<div class="display lime" style="font-size:120px;opacity:.95">${s.n}</div>`, { left: "36px", top: "175px" }),
+        [[a, { o: 0, x: -40 }], [a + .4, {}], [b, {}], [b + .3, { o: 0, x: 40 }]]);
+      inout(el(`<div class="display" style="font-size:36px;width:470px;line-height:1.05">${s.title}</div>`, { left: "40px", top: "320px" }), a + .15, b, { o: 0, y: 30 }, { o: 0, y: -20 }, .4);
+      inout(el(`<div style="font-size:18px;color:var(--stone);line-height:1.45;width:440px">${s.text}</div>`, { left: "40px", top: "375px" }), a + .3, b, { o: 0, y: 20 }, { o: 0 }, .4);
+      key(el(`<div class="card" style="width:230px;height:290px"><img src="${IMG(s.imgs[0])}"></div>`, { left: "40px", top: "470px" }),
+        [[a + .35, { o: 0, y: 80, r: -4 }], [a + .85, { r: -4 }], [b, { r: -4 }], [b + .3, { o: 0, y: -40, r: -4 }]], "out");
+      key(el(`<div class="card" style="width:200px;height:250px"><img src="${IMG(s.imgs[1])}"></div>`, { left: "295px", top: "520px" }),
+        [[a + .5, { o: 0, y: 80, r: 5 }], [a + 1, { r: 5 }], [b, { r: 5 }], [b + .3, { o: 0, y: -40, r: 5 }]], "out");
+    });
+    // progress dots
+    const dots = el(`<div style="display:flex;gap:8px">${[0, 1, 2].map(() => `<i style="width:34px;height:4px;border-radius:9px;background:var(--line);display:block;overflow:hidden"><b style="display:block;height:100%;width:0;background:var(--glow)"></b></i>`).join("")}</div>`, { left: "40px", top: "150px" });
+    key(dots, [[2.8, { o: 0 }], [3.1, {}], [11.8, {}], [12, { o: 0 }]]);
+    custom.push((t) => dots.querySelectorAll("b").forEach((b, i) => { b.style.width = Math.max(0, Math.min(1, (t - 3 - i * 3) / 3)) * 100 + "%"; }));
+
+    const E = 12;
+    key(el(`<div class="display" style="font-size:36px;text-align:center;width:540px;line-height:1.08">Асуух зүйл<br>байна уу?</div>`, { left: "0", top: "330px" }),
+      [[E, { o: 0, s: .85 }], [E + .45, {}]], "back");
+    key(el(`<div class="pill" style="padding:16px 30px;font-size:15px">Бидэнтэй холбогдоорой</div>`, { left: "0", width: "540px", display: "flex", justifyContent: "center", top: "450px" }),
+      [[E + .35, { o: 0, y: 20 }], [E + .75, {}]]);
+    key(el(`<div class="tag" style="font-size:12px">Instagram-аар DM бичээрэй</div>`, { left: "0", width: "540px", textAlign: "center", top: "530px" }),
+      [[E + .6, { o: 0 }], [E + 1, {}]]);
+    return D;
+  },
+
+  // 3) Collection intro + contact
+  collection() {
+    const D = 13;
+    key(el(`<div class="mono" style="font-size:12px;color:var(--muted)">Thrift.mn · Улаанбаатар</div>`, { left: "40px", top: "200px" }),
+      [[.1, { o: 0 }], [.5, {}], [3.1, {}], [3.4, { o: 0 }]]);
+    key(el(`<div class="display" style="font-size:60px;line-height:1.02">Олон<br>дэлгүүр.<br><span class="lime">Нэг газар.</span></div>`, { left: "40px", top: "235px" }),
+      [[.2, { o: 0, y: 50, s: 1.1 }], [.7, {}], [3.1, {}], [3.5, { o: 0, y: -40 }]], "back");
+    key(el(`<div class="arch" style="width:210px;height:280px"><img src="${IMG(P.rack1)}"></div>`, { left: "290px", top: "500px" }),
+      [[.5, { o: 0, y: 60 }], [1, {}], [3.1, {}], [3.5, { o: 0 }]]);
+
+    // Grid of items popping in
+    const grid = [P.hoodie, P.coat, P.cardigan, P.jeans, P.boot, P.tote, P.bomber, P.beanie, P.sneaker];
+    const G0 = 3.6, cw = 146, ch = 182, gx = 12, gy = 12, left = (540 - 3 * cw - 2 * gx) / 2, top = 255;
+    grid.forEach((slug, i) => {
+      const r = Math.floor(i / 3), c = i % 3, t = G0 + i * .16;
+      key(el(`<div class="card" style="width:${cw}px;height:${ch}px;border-radius:18px"><img src="${IMG(slug)}"></div>`, { left: left + c * (cw + gx) + "px", top: top + r * (ch + gy) + "px" }),
+        [[t, { o: 0, s: .6, r: (c - 1) * 6 }], [t + .45, {}], [8.6, {}], [9 + i * .03, { o: 0, s: .9 }]], "back");
+    });
+    inout(el(`<div class="display" style="font-size:30px;line-height:1.05">Хувцас, гутал,<br><span class="lime">цүнх, accessories</span></div>`, { left: "40px", top: "150px" }), G0, 8.6, { o: 0, y: -20 }, { o: 0 });
+    const price = el(`<div class="pill" style="padding:10px 18px;font-size:12px">15,000₮-өөс</div>`, { left: "350px", top: "232px" });
+    key(price, [[G0 + 1.6, { o: 0, s: .6, r: -6 }], [G0 + 2, { r: -6 }], [8.6, { r: -6 }], [8.9, { o: 0, r: -6 }]], "back");
+
+    // Contact end card
+    const E = 9.2;
+    key(el(`<div class="logo" style="font-size:56px">thrift<span>.mn</span></div>`, { left: "0", width: "540px", textAlign: "center", top: "250px" }),
+      [[E, { o: 0, s: .85, b: 6 }], [E + .45, {}]], "back");
+    key(el(`<div class="display" style="font-size:34px;text-align:center;width:540px;line-height:1.1">Бидэнтэй<br><span class="lime">холбогдоорой</span></div>`, { left: "0", top: "350px" }),
+      [[E + .35, { o: 0, y: 24 }], [E + .8, {}]], "back");
+    key(el(`<div class="pill" style="padding:16px 30px;font-size:15px">DM бичээрэй →</div>`, { left: "0", width: "540px", display: "flex", justifyContent: "center", top: "480px" }),
+      [[E + .7, { o: 0, y: 20 }], [E + 1.1, {}]]);
+    key(el(`<div class="tag" style="font-size:12px">Second hand · Vintage · Улаанбаатар</div>`, { left: "0", width: "540px", textAlign: "center", top: "560px" }),
+      [[E + 1, { o: 0 }], [E + 1.4, {}]]);
+    return D;
+  },
+};
+
+const which = new URLSearchParams(location.search).get("reel") || "intro";
+window.DURATION = REELS[which]();
+window.render = render;
+window.ready = (async () => {
+  await document.fonts.ready;
+  await Promise.all([...document.images].map((i) => i.complete ? 0 : new Promise((r) => { i.onload = i.onerror = r; })));
+  render(0);
+  return true;
+})();
+</script>
+</body>
+</html>

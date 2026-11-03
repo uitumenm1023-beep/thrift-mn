@@ -1,0 +1,47 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Unbounded:wght@700;800&family=JetBrains+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:transparent; }
+  .art { position:relative; display:grid; place-items:center; overflow:hidden; }
+  .dark { background:
+      radial-gradient(55% 55% at 30% 25%, rgb(216 240 106 / .22), transparent 70%),
+      radial-gradient(50% 50% at 80% 85%, rgb(216 240 106 / .12), transparent 70%), #0f1f17; }
+  .light { background:#eceee7; }
+  .clear { background:transparent; }
+  .t { font-family:Unbounded, Montserrat, sans-serif; font-weight:800; letter-spacing:-.06em; line-height:1; color:#e6e9da; display:flex; align-items:flex-end; }
+  .t i { display:block; border-radius:50%; background:#d8f06a; box-shadow:0 0 .35em rgb(216 240 106 / .55); }
+  .word { font-family:Unbounded, Montserrat, sans-serif; font-weight:700; letter-spacing:-.035em; line-height:1; color:#e6e9da; }
+  .word span { color:#d8f06a; }
+  .light .word { color:#0f1f17; } .light .word span { color:#3e5a3f; }
+  .tag { font-family:"JetBrains Mono"; text-transform:uppercase; letter-spacing:.2em; color:#97a592; }
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+const v = new URLSearchParams(location.search).get("v");
+const root = document.getElementById("root");
+const S = Number(new URLSearchParams(location.search).get("s") || 1080);
+const T = {
+  // IG avatar: the "t." mark
+  avatar: `<div class="art dark" style="width:${S}px;height:${S}px">
+      <div class="t" style="font-size:${S * .56}px;transform:translate(${S * .002}px, -${S * .018}px)">t<i style="width:${S * .13}px;height:${S * .13}px;margin:0 0 ${S * .045}px ${S * .02}px"></i></div></div>`,
+  // Favicon: same mark, tighter crop, rounded square
+  icon: `<div class="art dark" style="width:${S}px;height:${S}px;border-radius:${S * .22}px">
+      <div class="t" style="font-size:${S * .7}px;transform:translate(${S * .002}px, -${S * .02}px)">t<i style="width:${S * .16}px;height:${S * .16}px;margin:0 0 ${S * .055}px ${S * .02}px"></i></div></div>`,
+  // IG profile picture with the full wordmark, sized to sit inside the circle crop
+  avatarWord: `<div class="art dark" style="width:${S}px;height:${S}px;gap:${S * .028}px;align-content:center;justify-items:center">
+      <div class="word" style="font-size:${S * .148}px;transform:translateY(${S * .012}px)">thrift<span>.mn</span></div>
+      <div class="tag" style="font-size:${S * .021}px;letter-spacing:.24em">Second hand · Vintage</div></div>`,
+  wordDark: `<div class="art dark" style="width:1600px;height:800px;gap:28px;align-content:center">
+      <div class="word" style="font-size:190px">thrift<span>.mn</span></div>
+      <div class="tag" style="font-size:26px">Second hand · Vintage · Улаанбаатар</div></div>`,
+  wordLight: `<div class="art light" style="width:1600px;height:800px;gap:28px;align-content:center">
+      <div class="word" style="font-size:190px">thrift<span>.mn</span></div>
+      <div class="tag" style="font-size:26px;color:#6b7f67">Second hand · Vintage · Улаанбаатар</div></div>`,
+};
+root.innerHTML = T[v] || T.avatar;
+window.ready = document.fonts.ready.then(() => true);
+</script>
+</body></html>
