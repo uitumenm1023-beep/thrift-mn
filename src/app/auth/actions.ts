@@ -120,11 +120,22 @@ export async function registerShop(
     if (error.code === "weak_password") {
       return { ok: false, error: "Нууц үг хэт энгийн байна.", fieldErrors: { password: "Илүү хүчтэй нууц үг сонгоно уу." } };
     }
-    if (error.status === 429) {
+    if (error.status === 429 || error.code === "over_email_send_rate_limit" || error.code === "over_request_rate_limit") {
       return { ok: false, error: "Хэт олон оролдлого хийлээ. Хэсэг хугацааны дараа дахин оролдоно уу." };
     }
-    console.error("[registerShop]", error.message);
-    return { ok: false, error: "Бүртгэл үүсгэхэд алдаа гарлаа. Дахин оролдоно уу." };
+    if (error.code === "email_address_invalid" || error.code === "validation_failed") {
+      return { ok: false, error: "Энэ имэйл хаягийг хүлээн авахгүй байна. Жинхэнэ имэйл хаягаа оруулна уу.", fieldErrors: { email: "Жинхэнэ имэйл хаяг оруулна уу." } };
+    }
+    if (error.code === "email_address_not_authorized") {
+      return { ok: false, error: "Баталгаажуулах имэйл илгээж чадсангүй. Thrift.mn-ийн багтай холбогдоно уу. (код: email_not_authorized)" };
+    }
+    if (error.code === "signup_disabled") {
+      return { ok: false, error: "Шинэ бүртгэл түр хаалттай байна. Thrift.mn-ийн багтай холбогдоно уу." };
+    }
+    console.error("[registerShop]", error.code, error.status, error.message);
+    // Show a short code so problems can be diagnosed without server logs.
+    const code = error.code ?? (/database error/i.test(error.message) ? "database_error" : `status_${error.status ?? "unknown"}`);
+    return { ok: false, error: `Бүртгэл үүсгэхэд алдаа гарлаа. Дахин оролдоно уу. (код: ${code})` };
   }
 
   // With email confirmation on, Supabase hides existing accounts by
