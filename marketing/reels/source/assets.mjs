@@ -2,7 +2,7 @@
 import { chromium } from "playwright";
 import ffmpegPath from "ffmpeg-static";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);

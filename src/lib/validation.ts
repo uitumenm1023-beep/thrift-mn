@@ -123,6 +123,22 @@ export function validateProduct(input: ProductInput) {
   };
 }
 
+/** Password rules, shared by the form's live checklist and the server. */
+export const PASSWORD_RULES = [
+  { id: "length", label: "Хамгийн багадаа 8 тэмдэгт", test: (p: string) => p.length >= 8 },
+  { id: "letter", label: "Үсэг (a–z, А–Я)", test: (p: string) => /\p{L}/u.test(p) },
+  { id: "number", label: "Тоо (0–9)", test: (p: string) => /\d/.test(p) },
+  { id: "symbol", label: "Тэмдэгт (! @ # - + гэх мэт)", test: (p: string) => /[^\p{L}\d\s]/u.test(p) },
+] as const;
+
+/** Returns a Mongolian error message, or null when the password is strong enough. */
+export function checkPassword(password: string) {
+  if (password.length > 72) return "Нууц үг 72 тэмдэгтээс хэтрэхгүй.";
+  const missing = PASSWORD_RULES.filter((r) => !r.test(password));
+  if (!missing.length) return null;
+  return `Нууц үгэнд ${missing.map((r) => r.label.toLowerCase()).join(", ")} байх шаардлагатай.`;
+}
+
 export function validateEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }

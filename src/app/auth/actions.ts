@@ -6,7 +6,7 @@ import { homeForRole } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult, UserRole } from "@/lib/types";
-import { str, validateEmail, validateShop, type FieldErrors } from "@/lib/validation";
+import { checkPassword, str, validateEmail, validateShop, type FieldErrors } from "@/lib/validation";
 
 const NOT_CONFIGURED = "Supabase тохируулагдаагүй тул нэвтрэх боломжгүй байна.";
 
@@ -83,7 +83,8 @@ export async function registerShop(
   const fieldErrors: FieldErrors = { ...shopErrors };
   if (fullName.length < 2 || fullName.length > 120) fieldErrors.full_name = "Нэрээ бичнэ үү.";
   if (!validateEmail(email)) fieldErrors.email = "Имэйл хаяг буруу байна.";
-  if (password.length < 8) fieldErrors.password = "Нууц үг хамгийн багадаа 8 тэмдэгт байна.";
+  const passwordError = checkPassword(password);
+  if (passwordError) fieldErrors.password = passwordError;
   if (!values.instagram_url && !values.facebook_url && !values.phone)
     fieldErrors.phone = fieldErrors.phone ?? "Дор хаяж нэг холбоо барих хаяг оруулна уу.";
 

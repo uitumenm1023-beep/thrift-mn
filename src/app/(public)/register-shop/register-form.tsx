@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useActionState, useRef, useState } from "react";
-import { LoaderCircle, MailCheck } from "lucide-react";
+import { Check, Eye, EyeOff, LoaderCircle, MailCheck } from "lucide-react";
 import { registerShop } from "@/app/auth/actions";
 import { updateShopImage } from "@/app/dashboard/actions";
 import { ShopFields } from "@/components/forms/shop-fields";
@@ -13,6 +13,8 @@ import { STORAGE_BUCKETS } from "@/lib/constants";
 import type { ActionResult } from "@/lib/types";
 import { formValues } from "@/lib/form-values";
 import { uploadImage } from "@/lib/upload";
+import { PASSWORD_RULES } from "@/lib/validation";
+import { cn } from "@/lib/format";
 
 type State = ActionResult<{ userId: string; signedIn: boolean }> | null;
 
@@ -87,9 +89,7 @@ export function RegisterShopForm() {
           <Field label="Имэйл" htmlFor="email" required error={errors.email}>
             <Input id="email" name="email" type="email" autoComplete="email" defaultValue={values.email} required {...errorProps("email", errors.email)} />
           </Field>
-          <Field label="Нууц үг" htmlFor="password" required error={errors.password} hint="Хамгийн багадаа 8 тэмдэгт">
-            <Input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required {...errorProps("password", errors.password)} />
-          </Field>
+          <PasswordField error={errors.password} />
         </div>
       </fieldset>
 
@@ -111,5 +111,52 @@ export function RegisterShopForm() {
         </Button>
       </div>
     </form>
+  );
+}
+
+/** Password input with a show/hide toggle and a live checklist of the rules. */
+function PasswordField({ error }: { error?: string }) {
+  const [value, setValue] = useState("");
+  const [visible, setVisible] = useState(false);
+  return (
+    <Field label="Нууц үг" htmlFor="password" required error={error}>
+      <div className="relative">
+        <Input
+          id="password"
+          name="password"
+          type={visible ? "text" : "password"}
+          autoComplete="new-password"
+          minLength={8}
+          maxLength={72}
+          required
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="pr-11"
+          aria-describedby="password-rules"
+          {...errorProps("password", error)}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          className="absolute top-1/2 right-2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-muted hover:text-ink"
+          aria-label={visible ? "Нууц үгийг нуух" : "Нууц үгийг харуулах"}
+        >
+          {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+        </button>
+      </div>
+      <ul id="password-rules" className="grid grid-cols-2 gap-x-3 gap-y-1 pt-1 text-[12px]">
+        {PASSWORD_RULES.map((rule) => {
+          const ok = rule.test(value);
+          return (
+            <li key={rule.id} className={cn("flex items-center gap-1.5 transition-colors", ok ? "text-success" : "text-muted")}>
+              <span className={cn("grid size-3.5 place-items-center rounded-full border", ok ? "border-success bg-success/20" : "border-muted/50")}>
+                {ok && <Check className="size-2.5" strokeWidth={3} />}
+              </span>
+              {rule.label}
+            </li>
+          );
+        })}
+      </ul>
+    </Field>
   );
 }
