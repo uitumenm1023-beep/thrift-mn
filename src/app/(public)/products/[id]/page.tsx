@@ -10,7 +10,7 @@ import { ShopLogo } from "@/components/shop/shop-card";
 import { Container, Skeleton } from "@/components/ui/misc";
 import { CONDITION_LABELS } from "@/lib/constants";
 import { getMoreFromShop, getProductById } from "@/lib/data/catalog";
-import { formatPhone, formatPrice } from "@/lib/format";
+import { formatPhone, formatPrice, isMapLink } from "@/lib/format";
 
 export async function generateMetadata({ params }: PageProps<"/products/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -142,7 +142,7 @@ async function ProductDetailView({ params }: Pick<PageProps<"/products/[id]">, "
                   </p>
                   {shop.address && (
                     <p className="mt-1 flex gap-1.5 text-[13px] text-muted">
-                      <MapPin className="mt-0.5 size-3.5 shrink-0" /> {shop.address}
+                      <MapPin className="mt-0.5 size-3.5 shrink-0" /> {isMapLink(shop.address) ? "Газрын зураг дээр байршилтай" : shop.address}
                     </p>
                   )}
                   {shop.phone && (

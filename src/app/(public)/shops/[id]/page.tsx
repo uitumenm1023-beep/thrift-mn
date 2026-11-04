@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Info, MapPin, Phone } from "lucide-react";
 import { ProductBrowser, ProductBrowserSkeleton } from "@/components/product/product-browser";
 import { ContactButtons } from "@/components/shop/contact-buttons";
+import { ShopCover } from "@/components/shop/shop-cover";
 import { ShopLogo } from "@/components/shop/shop-card";
 import { Container, Skeleton } from "@/components/ui/misc";
 import { getShopById, getShopCategories } from "@/lib/data/catalog";
 import { parseProductFilters } from "@/lib/filters";
-import { formatPhone } from "@/lib/format";
+import { formatPhone, isMapLink } from "@/lib/format";
 
 export async function generateMetadata({ params }: PageProps<"/shops/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -46,9 +46,7 @@ async function ShopView({ params, searchParams }: PageProps<"/shops/[id]">) {
   return (
     <>
       <div className="relative h-52 bg-paper-deep sm:h-72 lg:h-80">
-        {shop.cover_url && (
-          <Image src={shop.cover_url} alt="" fill priority sizes="100vw" className="object-cover" />
-        )}
+        <ShopCover shop={shop} priority sizes="100vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-night/70 to-transparent" />
       </div>
 
@@ -67,8 +65,19 @@ async function ShopView({ params, searchParams }: PageProps<"/shops/[id]">) {
               {shop.address && (
                 <li className="flex gap-2">
                   <MapPin className="mt-0.5 size-4 shrink-0" strokeWidth={1.75} />
-                  {shop.district && !shop.address.includes(shop.district) ? `${shop.district} дүүрэг, ` : ""}
-                  {shop.address}
+                  {isMapLink(shop.address) ? (
+                    <span>
+                      {shop.district ? `${shop.district} дүүрэг · ` : ""}
+                      <a href={shop.address.trim()} target="_blank" rel="noopener noreferrer" className="border-b border-glow/50 text-glow hover:border-glow">
+                        Газрын зураг дээр харах ↗
+                      </a>
+                    </span>
+                  ) : (
+                    <span>
+                      {shop.district && !shop.address.includes(shop.district) ? `${shop.district} дүүрэг, ` : ""}
+                      {shop.address}
+                    </span>
+                  )}
                 </li>
               )}
               {shop.phone && (
@@ -81,7 +90,11 @@ async function ShopView({ params, searchParams }: PageProps<"/shops/[id]">) {
 
           <div className="lg:col-span-5 lg:pt-20">
             <p className="mb-3 text-sm text-ink-soft">
-              <span className="font-semibold text-ink">{shop.available_count}</span> бараа худалдаанд байна
+              {shop.available_count > 0 ? (
+                <><span className="font-semibold text-ink">{shop.available_count}</span> бараа худалдаанд байна</>
+              ) : (
+                "Удахгүй шинэ бараа нэмэгдэнэ"
+              )}
             </p>
             <ContactButtons shop={shop} />
             <p className="mt-3 text-[12.5px] leading-relaxed text-muted">

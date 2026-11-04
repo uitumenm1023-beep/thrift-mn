@@ -36,3 +36,8 @@ export function formatDate(iso: string) {
 export function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
+
+/** True when a shop's address is actually a map link (e.g. maps.app.goo.gl/...). */
+export function isMapLink(address: string) {
+  return /^https?:\/\//i.test(address.trim());
+}
