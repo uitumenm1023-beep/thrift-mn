@@ -7,7 +7,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const metadata: Metadata = {
   title: "Дэлгүүр бүртгүүлэх",
-  description: "Second hand, vintage дэлгүүрээ Thrift.mn-д үнэгүй бүртгүүлж, бараагаа олон хүнд хүргээрэй.",
+  description: "Second hand, vintage дэлгүүрээ ThriftUB-д үнэгүй бүртгүүлж, бараагаа олон хүнд хүргээрэй.",
   alternates: { canonical: "/register-shop" },
 };
 
@@ -26,7 +26,7 @@ export default function RegisterShopPage() {
             <p className="eyebrow">Дэлгүүр эзэмшигчдэд</p>
             <h1 className="mt-3 font-serif font-semibold text-3xl leading-tight tracking-tight sm:text-4xl">Дэлгүүрээ бүртгүүлэх</h1>
             <p className="mt-4 text-[15px] leading-relaxed text-muted">
-              Thrift.mn ашиглах нь үнэгүй. Бид төлбөр, хүргэлт зохицуулдаггүй — худалдан авагчид тантай
+              ThriftUB ашиглах нь үнэгүй. Бид төлбөр, хүргэлт зохицуулдаггүй — худалдан авагчид тантай
               Instagram, Facebook эсвэл утсаар шууд холбогдоно.
             </p>
             <ol className="mt-8 space-y-4">

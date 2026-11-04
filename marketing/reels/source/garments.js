@@ -1,4 +1,4 @@
-// Garment "3D mockup" illustrations as SVG, in the Thrift.mn palette.
+// Garment "3D mockup" illustrations as SVG, in the ThriftUB palette.
 // Each drawing is 800×1000. Symmetric parts are written as a right half
 // (from the top centre, clockwise, back to the centre line) and mirrored.
 

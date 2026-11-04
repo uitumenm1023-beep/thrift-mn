@@ -31,7 +31,7 @@ export default function ShopsPage({ searchParams }: PageProps<"/shops">) {
         <p className="eyebrow">Дэлгүүрүүд</p>
         <h1 className="mt-3 font-serif font-semibold text-3xl tracking-tight sm:text-4xl">Дэлгүүрүүдтэй танилцах</h1>
         <p className="mt-3 max-w-xl text-[15px] text-muted">
-          Thrift.mn-д бүртгэлтэй, баталгаажсан second hand болон vintage дэлгүүрүүд.
+          ThriftUB-д бүртгэлтэй, баталгаажсан second hand болон vintage дэлгүүрүүд.
         </p>
       </header>
 

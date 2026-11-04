@@ -114,7 +114,7 @@ function HowItWorks() {
           <p className="eyebrow mb-3">Хэрхэн ажилладаг вэ</p>
           <h2 className="font-serif font-semibold tracking-tight text-2xl leading-tight sm:text-3xl">Гурван алхамаар хүссэн хувцсаа ол.</h2>
           <p className="mt-4 max-w-sm text-[15px] text-muted">
-            Thrift.mn төлбөр авдаггүй, хүргэлт хийдэггүй. Худалдан авалтыг та дэлгүүртэйгээ шууд тохирно.
+            ThriftUB төлбөр авдаггүй, хүргэлт хийдэггүй. Худалдан авалтыг та дэлгүүртэйгээ шууд тохирно.
           </p>
           <ButtonLink href="/register-shop" variant="outline" className="mt-8">
             Дэлгүүрээ бүртгүүлэх

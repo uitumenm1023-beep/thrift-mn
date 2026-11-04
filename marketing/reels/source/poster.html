@@ -49,7 +49,7 @@ const S = story ? { arch: [300, 140, 480, 640], c1: [70, 430, 250, 310, -8], c2:
 
 document.getElementById("p").innerHTML = `
   <div class="top">
-    <div class="logo" style="font-size:${story ? 44 : 40}px">thrift<span>.mn</span></div>
+    <div class="logo" style="font-size:${story ? 44 : 40}px">thrift<span>ub</span></div>
     <div class="mono" style="font-size:${story ? 20 : 18}px"><span class="dot"></span>Удахгүй</div>
   </div>
 
@@ -76,7 +76,7 @@ document.getElementById("p").innerHTML = `
       <div style="font-family:Unbounded, Montserrat, sans-serif;font-weight:700;font-size:${story ? 40 : 34}px;letter-spacing:-.02em">Дагаад хүлээгээрэй</div>
       <div class="mono" style="font-size:${story ? 19 : 16}px;margin-top:12px">Асуух зүйл байвал DM бичээрэй</div>
     </div>
-    <div class="cta" style="font-size:${story ? 26 : 22}px">thrift.mn</div>
+    <div class="cta" style="font-size:${story ? 26 : 22}px">thriftub.mn</div>
   </div>`;
 window.ready = Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.complete ? 0 : new Promise((r) => (i.onload = i.onerror = r)))]);
 </script>

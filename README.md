@@ -1,4 +1,4 @@
-# Thrift.mn
+# ThriftUB
 
 A marketplace for second-hand and vintage shops in Ulaanbaatar. Shops register and list their clothes; customers browse and contact a shop directly on Instagram, Facebook or by phone. **There are no payments or deliveries on the site.**
 
@@ -106,7 +106,7 @@ Users can never make themselves admin: the sign-up trigger never assigns the rol
 3. Add the environment variables (Production and Preview):
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
-   - `NEXT_PUBLIC_SITE_URL`: for example `https://thrift.mn` or `https://your-app.vercel.app`
+   - `NEXT_PUBLIC_SITE_URL`: for example `https://thriftub.mn` or `https://your-app.vercel.app`
 4. Deploy.
 5. In Supabase **Authentication → URL Configuration**, set the Site URL to the production URL and add `https://YOUR-DOMAIN/auth/callback` to Redirect URLs.
 
@@ -187,5 +187,5 @@ delete from public.shops where is_demo = true;   -- products and images cascade
 
 ## Placeholders to replace
 
-- **Footer contacts** (`src/components/layout/site-footer.tsx`): hello@thrift.mn, the phone number and the social links are placeholders, marked `TODO`.
+- **Footer contacts** (`src/components/layout/site-footer.tsx`): hello@thriftub.mn, the phone number and the social links are placeholders, marked `TODO`.
 - **Demo images:** clean product illustrations in `public/demo` (sources in `marketing/reels/source`). Delete the demo shops before launch (see above).

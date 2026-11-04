@@ -17,7 +17,7 @@ const NAV = [
 export function Logo({ className }: { className?: string }) {
   return (
     <Link href="/" className={cn("inline-flex items-baseline font-display text-[1.35rem] leading-none font-bold tracking-tight", className)}>
-      thrift<span className="text-glow">.mn</span>
+      thrift<span className="text-glow">ub</span>
     </Link>
   );
 }

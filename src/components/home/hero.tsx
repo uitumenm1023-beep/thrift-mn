@@ -4,7 +4,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
 import { HERO_IMAGE, HERO_SECONDARY_IMAGE } from "@/lib/demo-data";
 
-const TICKER = ["Vintage", "Second hand", "Pre-loved", "One of a kind", "Wear it again", "Ulaanbaatar", "Thrift.mn"];
+const TICKER = ["Vintage", "Second hand", "Pre-loved", "One of a kind", "Wear it again", "Ulaanbaatar", "ThriftUB"];
 
 export function Hero() {
   return (

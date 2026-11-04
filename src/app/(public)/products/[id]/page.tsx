@@ -122,7 +122,7 @@ async function ProductDetailView({ params }: Pick<PageProps<"/products/[id]">, "
               <div className="mt-6">
                 <ContactButtons shop={shop} />
                 <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
-                  Thrift.mn төлбөр авдаггүй. Худалдан авалт, хүргэлтийн нөхцөлөө дэлгүүртэй шууд тохиролцоорой.
+                  ThriftUB төлбөр авдаггүй. Худалдан авалт, хүргэлтийн нөхцөлөө дэлгүүртэй шууд тохиролцоорой.
                 </p>
               </div>
 

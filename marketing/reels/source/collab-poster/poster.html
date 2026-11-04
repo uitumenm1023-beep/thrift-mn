@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="mn"><head><meta charset="utf-8">
+<!-- Collab announcement poster, movie-poster style.
+     URL params: name, logo (image path/URL), handle, district, symbol (x | vs), v (post | story) -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Unbounded:wght@700;800;900&family=Oswald:wght@400;500;600&family=Onest:wght@400;500&family=JetBrains+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+  :root { --night:#091510; --paper:#0f1f17; --ink:#e6e9da; --stone:#c7cbb8; --muted:#97a592; --line:#26412f; --glow:#d8f06a; --moss:#3e5a3f; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1080px; height:var(--h); overflow:hidden; font-family:Onest, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .poster { position:relative; width:1080px; height:100%; overflow:hidden; display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .poster::after { content:""; position:absolute; inset:0; opacity:.09; pointer-events:none; z-index:5;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  .beams { position:absolute; left:50%; width:1800px; height:1800px; transform:translate(-50%,-50%); pointer-events:none;
+    background:repeating-conic-gradient(from 0deg, rgb(216 240 106 / .07) 0deg 6deg, transparent 6deg 18deg);
+    -webkit-mask:radial-gradient(circle, #000 0%, transparent 60%); mask:radial-gradient(circle, #000 0%, transparent 60%); }
+  .mono { font-family:"JetBrains Mono", monospace; text-transform:uppercase; letter-spacing:.32em; color:var(--muted); }
+  .rule { display:flex; align-items:center; gap:22px; }
+  .rule::before, .rule::after { content:""; width:90px; height:1px; background:currentColor; opacity:.5; }
+  .display { font-family:Unbounded, Montserrat, sans-serif; font-weight:900; text-transform:uppercase; letter-spacing:-.03em; line-height:.92; white-space:nowrap; }
+  .lime { color:var(--glow); }
+  .circle { position:relative; border-radius:50%; overflow:hidden; background:#fff;
+    box-shadow:0 0 0 6px var(--paper), 0 0 0 9px rgb(216 240 106 / .55), 0 0 90px 10px rgb(216 240 106 / .28), 0 40px 80px -20px rgba(0,0,0,.8); }
+  .circle img { width:100%; height:100%; object-fit:cover; display:block; }
+  .x { font-family:Unbounded, Montserrat, sans-serif; font-weight:900; color:var(--glow); line-height:1; text-shadow:0 0 40px rgb(216 240 106 / .6); }
+  .cond { font-family:Oswald, sans-serif; text-transform:uppercase; }
+  .badge { display:grid; place-items:center; background:var(--glow); color:var(--night); font-family:Unbounded, Montserrat, sans-serif; font-weight:900; text-transform:uppercase; line-height:1; white-space:nowrap;
+    box-shadow:0 0 0 7px var(--paper), 0 0 50px 4px rgb(216 240 106 / .55); }
+  .pill { display:inline-block; border-radius:999px; background:var(--glow); color:var(--night); font-family:"JetBrains Mono", monospace; font-weight:500; text-transform:uppercase; letter-spacing:.16em; box-shadow:0 0 40px -6px rgb(216 240 106 / .7); }
+</style></head>
+<body>
+<div class="poster" id="p"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const story = q.get("v") === "story";
+const H = story ? 1920 : 1350;
+document.documentElement.style.setProperty("--h", H + "px");
+const name = q.get("name") || "Shop";
+const logo = q.get("logo") || "";
+const handle = q.get("handle") || "";
+const district = q.get("district") || "";
+// Connector between the two names: x (default), amp, feat, meets, plus, vs
+const SYMBOLS = { x: "×", amp: "&", feat: "feat.", meets: "meets", plus: "+", vs: "VS" };
+const symbol = SYMBOLS[(q.get("symbol") || "x").toLowerCase()] ?? "×";
+const wordy = symbol.length > 2; // "feat." / "meets" need a pill, not a round badge
+
+// Same brand-green picked from the shop name as its generated cover on the site.
+const TONES = ["#1e3a2e", "#2f4a3a", "#3e5a3f", "#3d4337", "#24432f"];
+let h = 0; for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+const tone = TONES[h % TONES.length];
+
+const S = story
+  ? { top: 150, circleY: 700, circle: 340, overlap: 22, dy: 74, badge: 96, title: 150, sub: 104, titleGap: 150 }
+  : { top: 72, circleY: 430, circle: 300, overlap: 18, dy: 62, badge: 86, title: 128, sub: 90, titleGap: 110 };
+// Two overlapping circles in a zig-zag: ours up-left, theirs down-right.
+const step = S.circle - S.overlap;            // distance between the two centres (x)
+const L = { x: 540 - step / 2, y: S.circleY - S.dy };
+const R = { x: 540 + step / 2, y: S.circleY + S.dy };
+
+const billing = [
+  "ThriftUB танилцуулж байна",
+  name, "хамтран",
+  "ThriftUB", "Second hand", "Vintage",
+  district ? `${district} дүүрэг` : "Улаанбаатар",
+  handle ? `Instagram ${handle}` : "",
+].filter(Boolean).join("   ·   ");
+
+const p = document.getElementById("p");
+// Dark brand ground; the shop's green glows only behind the two logos.
+p.style.background = `radial-gradient(55% ${story ? 26 : 34}% at 50% ${S.circleY / H * 100}%, ${tone} 0%, transparent 100%), radial-gradient(70% 30% at 50% 0%, rgb(216 240 106 / .08), transparent 70%), linear-gradient(var(--paper), var(--night))`;
+p.innerHTML = `
+  <div class="beams" style="top:${S.circleY}px"></div>
+
+  <div class="mono rule" style="margin-top:${S.top}px;font-size:${story ? 22 : 19}px">ThriftUB presents</div>
+  <div style="margin-top:${story ? 30 : 22}px"><span class="pill" style="font-size:${story ? 22 : 19}px;padding:.6em 1.2em">Шинэ хамтрал · New collab</span></div>
+
+  <div class="circle" style="position:absolute;z-index:2;width:${S.circle}px;height:${S.circle}px;left:${L.x - S.circle / 2}px;top:${L.y - S.circle / 2}px"><img src="thrift-avatar.png"></div>
+  <div class="circle" style="position:absolute;z-index:3;width:${S.circle}px;height:${S.circle}px;left:${R.x - S.circle / 2}px;top:${R.y - S.circle / 2}px">${logo ? `<img src="${logo}">` : ""}</div>
+  <div class="badge" style="position:absolute;z-index:4;left:540px;top:${S.circleY}px;transform:translate(-50%,-50%) rotate(${wordy ? -8 : 0}deg);
+      ${wordy ? `padding:.35em .8em;border-radius:999px;font-size:${S.badge * .42}px` : `width:${S.badge}px;height:${S.badge}px;border-radius:50%;font-size:${S.badge * (symbol.length > 1 ? .42 : .62)}px`}">${symbol}</div>
+  <div class="mono" style="position:absolute;z-index:2;right:${1080 - (L.x - S.circle / 2) + 28}px;top:${L.y}px;transform:translateY(-50%);text-align:right;font-size:${story ? 20 : 17}px;letter-spacing:.18em;color:var(--stone)">thriftub.mn</div>
+  <div class="mono" style="position:absolute;z-index:2;left:${R.x + S.circle / 2 + 28}px;top:${R.y}px;transform:translateY(-50%);text-align:left;font-size:${story ? 20 : 17}px;letter-spacing:.18em;color:var(--stone)">${handle || name}</div>
+
+  <div style="position:absolute;left:0;right:0;top:${R.y + S.circle / 2 + S.titleGap}px;display:grid;justify-items:center;z-index:2">
+    <div id="t1" class="display" style="font-size:${S.title}px">${name}</div>
+    <div id="t2" class="display lime" style="font-size:${S.sub}px;margin-top:${story ? 18 : 12}px">${symbol} ThriftUB</div>
+  </div>
+
+  <div style="position:absolute;left:70px;right:70px;bottom:${story ? 120 : 64}px;display:grid;justify-items:center;gap:${story ? 22 : 16}px;z-index:2">
+    <div class="cond" style="font-size:${story ? 25 : 21}px;font-weight:400;letter-spacing:.04em;line-height:1.25;color:var(--stone);opacity:.75;transform:scaleY(1.35)">${billing}</div>
+    <div class="cond lime" style="font-size:${story ? 52 : 44}px;font-weight:600;letter-spacing:.1em;margin-top:${story ? 14 : 8}px">Одоо ThriftUB дээр</div>
+    <div class="mono" style="font-size:${story ? 18 : 15}px;letter-spacing:.24em">thriftub.mn</div>
+  </div>`;
+
+// Shrink long shop names so they always fit on one line.
+const fit = (id, max) => { const e = document.getElementById(id); let fs = parseFloat(e.style.fontSize); while (e.scrollWidth > max && fs > 30) { fs -= 2; e.style.fontSize = fs + "px"; } };
+window.ready = Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.complete ? 0 : new Promise((r) => (i.onload = i.onerror = r)))])
+  .then(() => { fit("t1", 940); fit("t2", 940); return true; });
+</script>
+</body></html>

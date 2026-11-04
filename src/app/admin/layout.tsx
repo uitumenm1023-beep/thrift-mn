@@ -11,7 +11,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: { default: "Админ", template: "%s · Админ | Thrift.mn" },
+  title: { default: "Админ", template: "%s · Админ | ThriftUB" },
   robots: { index: false },
 };
 

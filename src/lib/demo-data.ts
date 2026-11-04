@@ -3,7 +3,7 @@
 //   1. The app shows this data when Supabase is not configured yet (demo mode).
 //   2. `npm run seed:generate` turns it into supabase/seed.sql.
 // Every shop and product here is flagged with is_demo = true.
-// Images are clean product illustrations in /public/demo (drawn for Thrift.mn
+// Images are clean product illustrations in /public/demo (drawn for ThriftUB
 // in the brand palette), so the catalog looks consistent and on-brand.
 //
 // This file must stay plain TypeScript with type-only imports so Node can

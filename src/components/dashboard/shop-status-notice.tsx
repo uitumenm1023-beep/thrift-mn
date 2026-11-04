@@ -21,7 +21,7 @@ export function ShopStatusNotice({ shop }: { shop: Shop | null }) {
   }
   return (
     <Notice icon={EyeOff} tone="danger" title={shop.status === "rejected" ? "Дэлгүүрийн хүсэлт татгалзагдсан" : "Дэлгүүр түр хаагдсан"}>
-      Таны дэлгүүр болон бараа одоогоор нийтэд харагдахгүй байна. Дэлгэрэнгүйг Thrift.mn-ийн багаас лавлана уу.
+      Таны дэлгүүр болон бараа одоогоор нийтэд харагдахгүй байна. Дэлгэрэнгүйг ThriftUB-ийн багаас лавлана уу.
     </Notice>
   );
 }

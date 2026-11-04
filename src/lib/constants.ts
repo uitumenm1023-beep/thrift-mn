@@ -1,6 +1,6 @@
 import type { ProductCondition, ShopStatus } from "./types";
 
-export const SITE_NAME = "Thrift.mn";
+export const SITE_NAME = "ThriftUB";
 export const SITE_DESCRIPTION =
   "Улаанбаатарын second hand, vintage дэлгүүрүүдийн хувцсыг нэг дороос олж, дэлгүүртэй шууд холбогдоорой.";
 

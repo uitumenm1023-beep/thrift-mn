@@ -4,12 +4,12 @@ import { FacebookIcon, InstagramIcon } from "@/components/icons";
 import { buttonClasses } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
 
-// TODO: replace with the real Thrift.mn contacts before launch.
+// TODO: replace with the real ThriftUB contacts before launch.
 const CONTACT = {
-  email: "hello@thrift.mn",
+  email: "hello@thriftub.mn",
   phone: "7700 0000",
-  instagram: "https://www.instagram.com/thrift.mn",
-  facebook: "https://www.facebook.com/thrift.mn",
+  instagram: "https://www.instagram.com/thriftub.mn",
+  facebook: "https://www.facebook.com/thriftub.mn",
 };
 
 export function SiteFooter() {
@@ -19,18 +19,18 @@ export function SiteFooter() {
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="font-display text-2xl font-bold tracking-tight">
-              thrift<span className="text-glow">.mn</span>
+              thrift<span className="text-glow">ub</span>
             </p>
             <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-muted">
               Улаанбаатарын second hand, vintage дэлгүүрүүдийг нэг дор цуглуулсан платформ. Бид
               бараа зардаггүй — харин танд тохирох дэлгүүрийг олоход тусалдаг.
             </p>
             <div className="mt-6 flex gap-2">
-              <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" aria-label="Thrift.mn Instagram"
+              <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" aria-label="ThriftUB Instagram"
                 className="grid size-10 place-items-center rounded-full border border-line transition-colors hover:border-glow hover:text-glow">
                 <InstagramIcon className="size-[18px]" />
               </a>
-              <a href={CONTACT.facebook} target="_blank" rel="noopener noreferrer" aria-label="Thrift.mn Facebook"
+              <a href={CONTACT.facebook} target="_blank" rel="noopener noreferrer" aria-label="ThriftUB Facebook"
                 className="grid size-10 place-items-center rounded-full border border-line transition-colors hover:border-glow hover:text-glow">
                 <FacebookIcon className="size-[18px]" />
               </a>
@@ -75,11 +75,11 @@ export function SiteFooter() {
         </div>
 
         <p aria-hidden="true" className="mt-16 -mb-2 font-display text-[19vw] leading-[0.8] font-extrabold tracking-tighter text-sand/70 select-none lg:text-[15.5rem]">
-          thrift<span className="text-moss">.mn</span>
+          thrift<span className="text-moss">ub</span>
         </p>
 
         <div className="flex flex-col gap-2 border-t border-line pt-6 text-[13px] text-muted sm:flex-row sm:justify-between">
-          <p>© 2026 Thrift.mn. Бүх эрх хуулиар хамгаалагдсан.</p>
+          <p>© 2026 ThriftUB. Бүх эрх хуулиар хамгаалагдсан.</p>
           <p>Төлбөр, хүргэлтийг дэлгүүр тус бүр өөрөө зохицуулна.</p>
         </div>
       </Container>

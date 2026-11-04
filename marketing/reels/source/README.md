@@ -1,4 +1,4 @@
-# Thrift.mn reels — source
+# ThriftUB reels — source
 
 `reel.html` draws the three reels (`?reel=intro`, `?reel=how`, `?reel=collection`) in the site's colors and fonts. Edit text, timing, or photos there.
 

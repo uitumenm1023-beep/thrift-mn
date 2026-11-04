@@ -42,7 +42,7 @@ document.documentElement.style.setProperty("--w", W + "px");
 document.documentElement.style.setProperty("--h", H + "px");
 document.documentElement.style.setProperty("--pad", story ? "84px" : "72px");
 const img = (s) => `demo/${s.startsWith("rack") ? "shops" : "products"}/${s}.webp`;
-const words = ["Хамтран ажиллая", "Second hand", "Vintage", "Улаанбаатар", "Thrift.mn"];
+const words = ["Хамтран ажиллая", "Second hand", "Vintage", "Улаанбаатар", "ThriftUB"];
 const tick = [...words, ...words, ...words].map((w) => `<span>${w}</span><b>✦</b>`).join("");
 const perks = [
   "Бүртгүүлэх нь <b>үнэгүй</b>",
@@ -56,7 +56,7 @@ const S = story
 
 document.getElementById("p").innerHTML = `
   <div class="top">
-    <div class="logo" style="font-size:${story ? 44 : 40}px">thrift<span>.mn</span></div>
+    <div class="logo" style="font-size:${story ? 44 : 40}px">thrift<span>ub</span></div>
     <div class="mono" style="font-size:${story ? 20 : 18}px"><span class="dot"></span>Хамтран ажиллая</div>
   </div>
 
@@ -67,7 +67,7 @@ document.getElementById("p").innerHTML = `
 
   <div class="stage" style="margin-top:${story ? 56 : 36}px">
     <div style="position:absolute;left:0;top:0;width:${story ? 520 : 560}px">
-      <p style="font-size:${story ? 34 : 30}px;line-height:1.35;color:var(--stone)">Second hand, vintage дэлгүүртэй юу? Барааныхаа зургийг Thrift.mn-д оруулаад <b style="color:var(--ink);font-weight:600">илүү олон худалдан авагчид</b> хүрээрэй.</p>
+      <p style="font-size:${story ? 34 : 30}px;line-height:1.35;color:var(--stone)">Second hand, vintage дэлгүүртэй юу? Барааныхаа зургийг ThriftUB-д оруулаад <b style="color:var(--ink);font-weight:600">илүү олон худалдан авагчид</b> хүрээрэй.</p>
       <div style="display:grid;gap:${story ? 22 : 16}px;margin-top:${story ? 40 : 28}px;font-size:${story ? 30 : 26}px">
         ${perks.map((p) => `<div class="perk"><i>✓</i><span>${p}</span></div>`).join("")}
       </div>
@@ -86,7 +86,7 @@ document.getElementById("p").innerHTML = `
       <div style="font-family:Unbounded, Montserrat, sans-serif;font-weight:700;font-size:${story ? 40 : 34}px;letter-spacing:-.02em">Бидэнд DM бичээрэй</div>
       <div class="mono" style="font-size:${story ? 19 : 16}px;margin-top:12px">Бүх зүйлийг тайлбарлаад өгье</div>
     </div>
-    <div class="cta" style="font-size:${story ? 26 : 22}px">thrift.mn</div>
+    <div class="cta" style="font-size:${story ? 26 : 22}px">thriftub.mn</div>
   </div>`;
 window.ready = Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.complete ? 0 : new Promise((r) => (i.onload = i.onerror = r)))]);
 </script>

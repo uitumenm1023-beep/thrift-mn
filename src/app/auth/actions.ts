@@ -128,10 +128,10 @@ export async function registerShop(
       return { ok: false, error: "Энэ имэйл хаягийг хүлээн авахгүй байна. Жинхэнэ имэйл хаягаа оруулна уу.", fieldErrors: { email: "Жинхэнэ имэйл хаяг оруулна уу." } };
     }
     if (error.code === "email_address_not_authorized") {
-      return { ok: false, error: "Баталгаажуулах имэйл илгээж чадсангүй. Thrift.mn-ийн багтай холбогдоно уу. (код: email_not_authorized)" };
+      return { ok: false, error: "Баталгаажуулах имэйл илгээж чадсангүй. ThriftUB-ийн багтай холбогдоно уу. (код: email_not_authorized)" };
     }
     if (error.code === "signup_disabled") {
-      return { ok: false, error: "Шинэ бүртгэл түр хаалттай байна. Thrift.mn-ийн багтай холбогдоно уу." };
+      return { ok: false, error: "Шинэ бүртгэл түр хаалттай байна. ThriftUB-ийн багтай холбогдоно уу." };
     }
     console.error("[registerShop]", error.code, error.status, error.message);
     // Show a short code so problems can be diagnosed without server logs.

@@ -12,7 +12,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: { default: "Хянах самбар", template: "%s · Хянах самбар | Thrift.mn" },
+  title: { default: "Хянах самбар", template: "%s · Хянах самбар | ThriftUB" },
   robots: { index: false },
 };
 
