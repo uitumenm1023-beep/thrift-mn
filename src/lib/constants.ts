@@ -37,6 +37,22 @@ export const DISTRICTS = [
   "Багахангай",
 ];
 
+/**
+ * Rough centre of each district (lat, lng), used by "Миний ойролцоо" to pick
+ * the nearest district. Shops only store a district, not exact coordinates.
+ */
+export const DISTRICT_CENTERS: Record<string, [number, number]> = {
+  "Сүхбаатар": [47.93, 106.92],
+  "Чингэлтэй": [47.94, 106.9],
+  "Баянгол": [47.91, 106.86],
+  "Баянзүрх": [47.91, 107.0],
+  "Хан-Уул": [47.87, 106.88],
+  "Сонгинохайрхан": [47.92, 106.78],
+  "Налайх": [47.75, 107.27],
+  "Багануур": [47.83, 108.37],
+  "Багахангай": [47.36, 107.48],
+};
+
 export const SHOP_STATUS_LABELS: Record<ShopStatus, string> = {
   pending: "Хүлээгдэж буй",
   approved: "Баталгаажсан",

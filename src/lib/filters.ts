@@ -1,4 +1,4 @@
-import { CONDITIONS, SIZE_OPTIONS, SORT_OPTIONS, type SortValue } from "./constants";
+import { CONDITIONS, DISTRICTS, SIZE_OPTIONS, SORT_OPTIONS, type SortValue } from "./constants";
 import type { ProductCondition } from "./types";
 
 export type SearchParams = Record<string, string | string[] | undefined>;
@@ -11,6 +11,10 @@ export interface ProductFilters {
   sizes: string[];
   conditions: ProductCondition[];
   shop: string;
+  /** Shop districts to include (empty = all). */
+  districts: string[];
+  /** Set when the districts came from "Миний ойролцоо" (affects the chip label). */
+  near: boolean;
   sort: SortValue;
   page: number;
   includeSold: boolean;
@@ -39,6 +43,8 @@ export function parseProductFilters(sp: SearchParams): ProductFilters {
       CONDITIONS.some((x) => x.value === c),
     ),
     shop: first(sp.shop).slice(0, 40),
+    districts: all(sp.district).filter((d) => DISTRICTS.includes(d)),
+    near: first(sp.near) === "1",
     sort: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "newest",
     page: Number.isFinite(page) && page > 0 ? Math.min(page, 500) : 1,
     includeSold: first(sp.sold) === "1",
@@ -55,6 +61,8 @@ export function filtersToQuery(f: Partial<ProductFilters>) {
   f.sizes?.forEach((s) => params.append("size", s));
   f.conditions?.forEach((c) => params.append("condition", c));
   if (f.shop) params.set("shop", f.shop);
+  f.districts?.forEach((d) => params.append("district", d));
+  if (f.near && f.districts?.length) params.set("near", "1");
   if (f.sort && f.sort !== "newest") params.set("sort", f.sort);
   if (f.includeSold) params.set("sold", "1");
   if (f.page && f.page > 1) params.set("page", String(f.page));
@@ -69,6 +77,7 @@ export function countActiveFilters(f: ProductFilters) {
     f.sizes.length +
     f.conditions.length +
     (f.shop ? 1 : 0) +
+    f.districts.length +
     (f.includeSold ? 1 : 0)
   );
 }

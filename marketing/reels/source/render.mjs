@@ -10,7 +10,8 @@ const FPS = 30;
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 540, height: 960 }, deviceScaleFactor: 2 });
-await page.goto(`${pathToFileURL(new URL("./reel.html", import.meta.url).pathname)}?reel=${name}`);
+// PAGE=http://… renders another page (e.g. the promo, which loads files over HTTP).
+await page.goto(process.env.PAGE ?? `${pathToFileURL(new URL("./reel.html", import.meta.url).pathname)}?reel=${name}`);
 await page.evaluate(() => window.ready);
 const duration = await page.evaluate(() => window.DURATION);
 const frames = Math.round(duration * FPS);

@@ -40,6 +40,12 @@ export async function ProductBrowser({ filters, basePath = "/products", lockedSh
   filters.conditions.forEach((c) =>
     chips.push({ label: CONDITION_LABELS[c], href: href({ conditions: filters.conditions.filter((x) => x !== c) }) }),
   );
+  filters.districts.forEach((d) =>
+    chips.push({
+      label: filters.near ? `Ойролцоо: ${d}` : `Дүүрэг: ${d}`,
+      href: href({ districts: filters.districts.filter((x) => x !== d), near: false }),
+    }),
+  );
   const shop = !lockedShopId && shops.find((s) => s.id === filters.shop);
   if (shop) chips.push({ label: shop.name, href: href({ shop: "" }) });
   if (filters.includeSold) chips.push({ label: "Зарагдсан бараа орсон", href: href({ includeSold: false }) });

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="mn"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Unbounded:wght@600;700;800&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+  :root { --night:#091510; --paper:#0f1f17; --deep:#152a20; --sand:#1e3a2e; --moss:#3e5a3f; --stone:#c7cbb8; --ink:#e6e9da; --muted:#97a592; --line:#26412f; --glow:#d8f06a; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:var(--w); height:var(--h); overflow:hidden; font-family:Onest, sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .poster { position:relative; width:100%; height:100%; overflow:hidden; display:flex; flex-direction:column; padding:var(--pad);
+    background:
+      radial-gradient(60% 40% at 0% 0%, rgb(216 240 106 / .2), transparent 70%),
+      radial-gradient(55% 35% at 100% 100%, rgb(216 240 106 / .14), transparent 70%), var(--paper); }
+  .poster::after { content:""; position:absolute; inset:0; opacity:.08; pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  .top { display:flex; justify-content:space-between; align-items:center; }
+  .logo { font-family:Unbounded, Montserrat, sans-serif; font-weight:700; letter-spacing:-.035em; line-height:1; }
+  .logo span { color:var(--glow); }
+  .mono { font-family:"JetBrains Mono"; text-transform:uppercase; letter-spacing:.16em; color:var(--muted); }
+  .dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:var(--glow); box-shadow:0 0 14px var(--glow); margin-right:.6em; vertical-align:middle; }
+  h1 { font-family:Unbounded, Montserrat, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:-.03em; line-height:.95; }
+  h1 .lime { color:var(--glow); }
+  .stage { position:relative; flex:1; }
+  .arch { position:absolute; overflow:hidden; border-radius:999px 999px 36px 36px; background:#e4e7de; box-shadow:0 0 0 2px var(--line), 0 40px 80px -30px rgba(0,0,0,.7); }
+  .card { position:absolute; overflow:hidden; border-radius:24px; background:#e4e7de; box-shadow:0 0 0 2px var(--line), 0 30px 60px -20px rgba(0,0,0,.7); }
+  .arch img, .card img { width:100%; height:100%; object-fit:cover; display:block; }
+  .sticker { position:absolute; border-radius:999px; background:var(--glow); color:var(--night); font-family:"JetBrains Mono"; font-weight:500;
+    text-transform:uppercase; letter-spacing:.14em; box-shadow:0 0 50px -6px rgb(216 240 106 / .75); white-space:nowrap; }
+  .ticker { margin:0 calc(-1 * var(--pad)); background:var(--glow); color:var(--night); white-space:nowrap; overflow:hidden;
+    font-family:Unbounded, Montserrat, sans-serif; font-weight:700; text-transform:uppercase; }
+  .ticker b { color:var(--moss); padding:0 .7em; }
+  .bottom { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; }
+  .cta { border-radius:999px; border:2px solid rgb(230 233 218 / .3); padding:.85em 1.4em; font-weight:600; white-space:nowrap; }
+  .perk { display:flex; align-items:center; gap:.7em; font-weight:500; }
+  .perk i { flex:none; display:grid; place-items:center; width:1.5em; height:1.5em; border-radius:50%; background:var(--glow); color:var(--night); font-style:normal; font-weight:700; font-size:.8em; box-shadow:0 0 20px -4px rgb(216 240 106 / .7); }
+</style></head>
+<body>
+<div class="poster" id="p"></div>
+<script>
+const v = new URLSearchParams(location.search).get("v") || "post";
+const story = v === "story";
+const W = 1080, H = story ? 1920 : 1350;
+document.documentElement.style.setProperty("--w", W + "px");
+document.documentElement.style.setProperty("--h", H + "px");
+document.documentElement.style.setProperty("--pad", story ? "84px" : "72px");
+const img = (s) => `demo/${s.startsWith("rack") ? "shops" : "products"}/${s}.webp`;
+const words = ["Хамтран ажиллая", "Second hand", "Vintage", "Улаанбаатар", "Thrift.mn"];
+const tick = [...words, ...words, ...words].map((w) => `<span>${w}</span><b>✦</b>`).join("");
+const perks = [
+  "Бүртгүүлэх нь <b>үнэгүй</b>",
+  "Эхний <b>1 сар</b> бүх багц үнэгүй",
+  "Худалдан авагч танд <b>шууд</b> холбогдоно",
+];
+// Collage positions: [left, top, width, height, rotate]
+const S = story
+  ? { arch: [560, 30, 400, 540], c1: [40, 330, 270, 330, -7], c2: [330, 420, 230, 280, 6], sticker: [600, 0, 26, 6] }
+  : { arch: [640, 0, 300, 400], c1: [0, 0, 1, 1, 0], c2: [0, 0, 1, 1, 0], sticker: [610, -20, 22, 6] };
+
+document.getElementById("p").innerHTML = `
+  <div class="top">
+    <div class="logo" style="font-size:${story ? 44 : 40}px">thrift<span>.mn</span></div>
+    <div class="mono" style="font-size:${story ? 20 : 18}px"><span class="dot"></span>Хамтран ажиллая</div>
+  </div>
+
+  <div style="margin-top:${story ? 100 : 56}px">
+    <div class="mono" style="font-size:${story ? 22 : 19}px">Second hand · Vintage дэлгүүрүүдэд</div>
+    <h1 style="font-size:${story ? 104 : 92}px;margin-top:${story ? 26 : 18}px">Хамтран<br>ажиллах<br><span class="lime">дэлгүүр</span><br>хайж байна.</h1>
+  </div>
+
+  <div class="stage" style="margin-top:${story ? 56 : 36}px">
+    <div style="position:absolute;left:0;top:0;width:${story ? 520 : 560}px">
+      <p style="font-size:${story ? 34 : 30}px;line-height:1.35;color:var(--stone)">Second hand, vintage дэлгүүртэй юу? Барааныхаа зургийг Thrift.mn-д оруулаад <b style="color:var(--ink);font-weight:600">илүү олон худалдан авагчид</b> хүрээрэй.</p>
+      <div style="display:grid;gap:${story ? 22 : 16}px;margin-top:${story ? 40 : 28}px;font-size:${story ? 30 : 26}px">
+        ${perks.map((p) => `<div class="perk"><i>✓</i><span>${p}</span></div>`).join("")}
+      </div>
+    </div>
+    <div class="arch" style="left:${S.arch[0]}px;top:${S.arch[1]}px;width:${S.arch[2]}px;height:${S.arch[3]}px"><img src="${img("rack-2")}"></div>
+    ${story ? `
+    <div class="card" style="left:40px;top:500px;width:200px;height:240px;transform:rotate(-6deg)"><img src="${img("hoodie-lime")}"></div>
+    <div class="card" style="left:270px;top:530px;width:190px;height:230px;transform:rotate(5deg)"><img src="${img("coat-camel")}"></div>` : ""}
+    <div class="sticker" style="left:${S.sticker[0]}px;top:${S.sticker[1]}px;font-size:${S.sticker[2]}px;padding:.65em 1.1em;transform:rotate(${S.sticker[3]}deg)">Join us</div>
+  </div>
+
+  <div class="ticker" style="font-size:${story ? 30 : 26}px;padding:${story ? 22 : 18}px 0;margin-top:${story ? 40 : 28}px">${tick}</div>
+
+  <div class="bottom" style="margin-top:${story ? 56 : 36}px">
+    <div>
+      <div style="font-family:Unbounded, Montserrat, sans-serif;font-weight:700;font-size:${story ? 40 : 34}px;letter-spacing:-.02em">Бидэнд DM бичээрэй</div>
+      <div class="mono" style="font-size:${story ? 19 : 16}px;margin-top:12px">Бүх зүйлийг тайлбарлаад өгье</div>
+    </div>
+    <div class="cta" style="font-size:${story ? 26 : 22}px">thrift.mn</div>
+  </div>`;
+window.ready = Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.complete ? 0 : new Promise((r) => (i.onload = i.onerror = r)))]);
+</script>
+</body></html>

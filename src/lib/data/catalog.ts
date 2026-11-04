@@ -29,7 +29,7 @@ import { isUuid } from "@/lib/validation";
 export const CATALOG_TAG = "catalog";
 
 const CARD_SELECT =
-  "id,name,price,size,condition,is_available,is_demo,created_at,shop:shops!inner(id,name),product_images(image_url,display_order)";
+  "id,name,price,size,condition,is_available,is_demo,created_at,shop:shops!inner(id,name,district),product_images(image_url,display_order)";
 
 type CardRow = Omit<ProductCardData, "image_url" | "shop"> & {
   shop: { id: string; name: string } | { id: string; name: string }[];
@@ -130,7 +130,9 @@ export async function getProducts(filters: ProductFilters): Promise<Paginated<Pr
         (filters.maxPrice == null || p.price <= filters.maxPrice) &&
         (!filters.sizes.length || filters.sizes.includes(p.size)) &&
         (!filters.conditions.length || filters.conditions.includes(p.condition)) &&
-        (!filters.shop || p.shop_id === filters.shop),
+        (!filters.shop || p.shop_id === filters.shop) &&
+        (!filters.districts.length ||
+          filters.districts.includes(DEMO_SHOPS.find((s) => s.id === p.shop_id)?.district ?? "")),
     );
     list = [...list].sort((a, b) =>
       filters.sort === "price_asc"
@@ -161,6 +163,7 @@ export async function getProducts(filters: ProductFilters): Promise<Paginated<Pr
   if (filters.sizes.length) query = query.in("size", filters.sizes);
   if (filters.conditions.length) query = query.in("condition", filters.conditions);
   if (filters.shop) query = query.eq("shop_id", filters.shop);
+  if (filters.districts.length) query = query.in("shop.district", filters.districts);
 
   query =
     filters.sort === "price_asc"

@@ -85,7 +85,7 @@ async function ShopList({ searchParams }: { searchParams: Params }) {
   return (
     <>
       <p className="mb-6 text-[13px] text-muted" aria-live="polite">{shops.length} дэлгүүр</p>
-      <div className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {shops.map((shop) => (
           <ShopCard key={shop.id} shop={shop} />
         ))}
@@ -96,7 +96,7 @@ async function ShopList({ searchParams }: { searchParams: Params }) {
 
 function ShopListSkeleton() {
   return (
-    <div className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 4 }, (_, i) => (
         <div key={i} className="space-y-3">
           <Skeleton className="aspect-[4/3]" />

@@ -77,7 +77,7 @@ async function PopularShops() {
     return <p className="py-10 text-center text-muted">Баталгаажсан дэлгүүр одоогоор алга.</p>;
   }
   return (
-    <div className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
       {shops.map((s) => (
         <ShopCard key={s.id} shop={s} />
       ))}

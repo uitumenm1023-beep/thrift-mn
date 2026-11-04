@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { LoaderCircle, LocateFixed, Search, SlidersHorizontal, X } from "lucide-react";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Select, inputClasses } from "@/components/ui/field";
-import { CLOTHING_SIZES, CONDITIONS, ONE_SIZE, SHOE_SIZES, SORT_OPTIONS } from "@/lib/constants";
+import { CLOTHING_SIZES, CONDITIONS, DISTRICT_CENTERS, DISTRICTS, ONE_SIZE, SHOE_SIZES, SORT_OPTIONS } from "@/lib/constants";
 import { countActiveFilters, filtersToQuery, type ProductFilters } from "@/lib/filters";
 import { cn } from "@/lib/format";
 import type { ProductCondition } from "@/lib/types";
@@ -26,6 +26,14 @@ interface Props {
   hideShop?: boolean;
 }
 
+function readDistricts(fd: FormData, current: ProductFilters) {
+  if (!fd.has("district-group")) return { districts: current.districts, near: current.near };
+  const districts = fd.getAll("district").map(String);
+  // Keep the "near me" label only while the selection is unchanged.
+  const same = districts.length === current.districts.length && districts.every((d) => current.districts.includes(d));
+  return { districts, near: current.near && same };
+}
+
 function readForm(form: HTMLFormElement, current: ProductFilters): ProductFilters {
   const fd = new FormData(form);
   const num = (k: string) => {
@@ -41,6 +49,7 @@ function readForm(form: HTMLFormElement, current: ProductFilters): ProductFilter
     conditions: fd.getAll("condition").map(String) as ProductCondition[],
     shop: fd.has("shop") ? String(fd.get("shop")) : current.shop,
     includeSold: fd.get("sold") === "1",
+    ...readDistricts(fd, current),
     page: 1,
   };
 }
@@ -106,7 +115,9 @@ export function ProductFilterPanel({ filters, categories, shops, basePath = "/pr
           key={filtersToQuery(filters)}
           onSubmit={onSubmit}
           onChange={onChange}
-          className="flex-1 space-y-8 overflow-y-auto px-5 py-6 lg:overflow-visible lg:p-0"
+          // No bottom padding: the sticky button bar must sit flush with the
+          // drawer's bottom edge, or options scroll through the gap below it.
+          className="flex-1 space-y-8 overflow-y-auto px-5 pt-6 lg:overflow-visible lg:p-0"
         >
           <FilterGroup title="Ангилал">
             <div className="space-y-1">
@@ -116,6 +127,23 @@ export function ProductFilterPanel({ filters, categories, shops, basePath = "/pr
               ))}
             </div>
           </FilterGroup>
+
+          {!hideShop && (
+            <FilterGroup title="Дүүрэг">
+              <input type="hidden" name="district-group" value="1" />
+              <NearMeButton
+                onFound={(district) => {
+                  setOpen(false);
+                  apply({ ...filters, districts: [district], near: true, page: 1 });
+                }}
+              />
+              <div className="mt-3 space-y-1">
+                {DISTRICTS.map((d) => (
+                  <Checkbox key={d} name="district" value={d} label={d} defaultChecked={filters.districts.includes(d)} />
+                ))}
+              </div>
+            </FilterGroup>
+          )}
 
           <FilterGroup title="Үнэ (₮)">
             <div className="flex items-center gap-2">
@@ -256,6 +284,70 @@ export function ProductToolbar({ filters, basePath = "/products" }: { filters: P
           ))}
         </Select>
       </div>
+    </div>
+  );
+}
+
+/** Picks the district whose centre is closest (km), or null if far from UB. */
+function nearestDistrict(lat: number, lng: number) {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  let best: { name: string; km: number } | null = null;
+  for (const [name, [dLat, dLng]] of Object.entries(DISTRICT_CENTERS)) {
+    // Haversine distance
+    const a = Math.sin(rad(dLat - lat) / 2) ** 2 + Math.cos(rad(lat)) * Math.cos(rad(dLat)) * Math.sin(rad(dLng - lng) / 2) ** 2;
+    const km = 6371 * 2 * Math.asin(Math.sqrt(a));
+    if (!best || km < best.km) best = { name, km };
+  }
+  return best && best.km < 60 ? best.name : null;
+}
+
+/** "Миний ойролцоо": uses the device location to filter by the nearest district. */
+function NearMeButton({ onFound }: { onFound: (district: string) => void }) {
+  const [state, setState] = useState<"idle" | "loading">("idle");
+  const [message, setMessage] = useState<string | null>(null);
+
+  const locate = () => {
+    if (!("geolocation" in navigator)) {
+      setMessage("Таны төхөөрөмж байршил тодорхойлох боломжгүй байна.");
+      return;
+    }
+    setState("loading");
+    setMessage(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setState("idle");
+        const district = nearestDistrict(pos.coords.latitude, pos.coords.longitude);
+        if (district) onFound(district);
+        else setMessage("Та Улаанбаатараас гадуур байна. Дүүргээ доороос сонгоно уу.");
+      },
+      (err) => {
+        setState("idle");
+        setMessage(
+          err.code === err.PERMISSION_DENIED
+            ? "Байршлын зөвшөөрөл өгөөгүй байна. Дүүргээ доороос сонгоно уу."
+            : "Байршил олдсонгүй. Дүүргээ доороос сонгоно уу.",
+        );
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 },
+    );
+  };
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={locate}
+        disabled={state === "loading"}
+        className="inline-flex h-9 items-center gap-2 rounded-full border border-glow/60 px-3.5 text-[13px] font-medium text-glow transition-colors hover:bg-glow hover:text-night disabled:opacity-60"
+      >
+        {state === "loading" ? <LoaderCircle className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
+        Миний ойролцоо
+      </button>
+      {message ? (
+        <p className="mt-2 text-[12px] text-rust" role="alert">{message}</p>
+      ) : (
+        <p className="mt-2 text-[12px] text-muted">Таны байршлаар хамгийн ойр дүүргийг сонгоно.</p>
+      )}
     </div>
   );
 }

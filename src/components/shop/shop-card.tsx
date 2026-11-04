@@ -33,7 +33,7 @@ export function ShopLogo({
 
 export function ShopCard({ shop }: { shop: ShopWithCount }) {
   return (
-    <article className="group">
+    <article className="group min-w-0">
       <Link href={`/shops/${shop.id}`} className="block">
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-sand ring-1 ring-line transition-shadow duration-500 group-hover:ring-glow/40">
           {shop.cover_url && (
@@ -56,7 +56,7 @@ export function ShopCard({ shop }: { shop: ShopWithCount }) {
         </div>
         <div className="mt-3 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="font-serif font-semibold tracking-tight text-lg leading-tight">{shop.name}</h3>
+            <h3 className="font-serif font-semibold tracking-tight text-lg leading-tight break-words">{shop.name}</h3>
             <p className="mt-1.5 flex items-center gap-1 text-[13px] text-muted">
               <MapPin className="size-3.5 shrink-0" strokeWidth={1.75} />
               <span className="truncate">{shop.district ? `${shop.district} дүүрэг` : shop.address}</span>
