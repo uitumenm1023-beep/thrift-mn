@@ -4,7 +4,7 @@ import { updateTag } from "next/cache";
 import { CATALOG_TAG } from "@/lib/data/catalog";
 import { getCurrentUser, getOwnShop } from "@/lib/auth";
 import { MAX_PRODUCT_IMAGES, STORAGE_BUCKETS } from "@/lib/constants";
-import { storagePathFromUrl } from "@/lib/storage";
+import { storagePathFromUrl, withThumbPaths } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/types";
 import { isUuid, str, validateProduct, validateShop } from "@/lib/validation";
@@ -33,7 +33,7 @@ async function removeFiles(bucket: string, urls: (string | null | undefined)[]) 
     .filter((p): p is string => Boolean(p));
   if (!paths.length) return;
   const supabase = await createClient();
-  const { error } = await supabase.storage.from(bucket).remove(paths);
+  const { error } = await supabase.storage.from(bucket).remove(withThumbPaths(paths));
   if (error) console.error("[storage] remove failed:", error.message);
 }
 

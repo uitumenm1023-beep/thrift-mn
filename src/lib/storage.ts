@@ -15,18 +15,28 @@ export function checkImageFile(file: File) {
  * Phone photos are often 5–10MB; this keeps Supabase's free 1GB storage
  * from filling up and makes pages load faster.
  */
-export async function compressImage(file: File, maxSize = 1600): Promise<Blob> {
+export async function compressImage(file: File, maxSize = 1600, quality = 0.85): Promise<Blob> {
   try {
     const bitmap = await createImageBitmap(file);
     const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(bitmap.width * scale);
     canvas.height = Math.round(bitmap.height * scale);
-    canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext("2d")!;
+    const encode = (type: string) =>
+      new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    let blob = await encode("image/webp");
+    // Some browsers (older Safari) can't encode WebP and silently return PNG:
+    // use JPEG instead, on white so transparent areas don't turn black.
+    if (!blob || blob.type !== "image/webp") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      blob = await encode("image/jpeg");
+    }
     bitmap.close();
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/webp", 0.85),
-    );
     if (blob && blob.size <= MAX_UPLOAD_BYTES) return blob;
   } catch {
     // Fall through and upload the original file.
@@ -43,4 +53,25 @@ export function storagePathFromUrl(url: string, bucket: string) {
   const marker = `/storage/v1/object/public/${bucket}/`;
   const index = url.indexOf(marker);
   return index === -1 ? null : decodeURIComponent(url.slice(index + marker.length).split("?")[0]!);
+}
+
+// Uploads are saved as "<id>.full.<ext>" plus a small "<id>.thumb.<ext>"
+// (ext = webp, or jpg where the browser can't make WebP) for cards and
+// lists. Older uploads have no thumbnail and keep a single file.
+const FULL_RE = /\.full\.(webp|jpg)(?=$|\?)/;
+const PREPARED_RE = /\.(full|thumb)\.(webp|jpg)(?=$|\?)/;
+
+/** Thumbnail URL for an upload that has one, otherwise null. */
+export function thumbUrl(url: string) {
+  return FULL_RE.test(url) ? url.replace(FULL_RE, ".thumb.$1") : null;
+}
+
+/** True for uploads saved with the full/thumb naming (served without resizing). */
+export function isPreparedUpload(url: string) {
+  return PREPARED_RE.test(url);
+}
+
+/** Adds each upload's thumbnail path so both files are deleted together. */
+export function withThumbPaths(paths: string[]) {
+  return paths.flatMap((p) => (FULL_RE.test(p) ? [p, p.replace(FULL_RE, ".thumb.$1")] : [p]));
 }

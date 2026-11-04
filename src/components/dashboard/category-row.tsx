@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/smart-image";
 import { useState } from "react";
 import { Pencil, Tag } from "lucide-react";
 import { deleteCategory } from "@/app/admin/actions";

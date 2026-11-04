@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/smart-image";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Shirt } from "lucide-react";
 import { cn } from "@/lib/format";
@@ -35,7 +35,7 @@ export function ProductGallery({ images, alt, dimmed }: { images: string[]; alt:
                 i === index ? "ring-2 ring-glow ring-offset-2 ring-offset-paper" : "opacity-60 hover:opacity-100",
               )}
             >
-              <Image src={src} alt="" fill sizes="80px" className="object-cover" />
+              <Image thumb src={src} alt="" fill sizes="80px" className="object-cover" />
             </button>
           ))}
         </div>

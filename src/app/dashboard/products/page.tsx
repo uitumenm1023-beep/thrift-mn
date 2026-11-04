@@ -1,5 +1,5 @@
 import Form from "next/form";
-import Image from "next/image";
+import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import { Pencil, PackagePlus, Search, Shirt } from "lucide-react";
 import { deleteOwnProduct, setProductAvailability } from "@/app/dashboard/actions";
@@ -75,7 +75,7 @@ export default async function OwnerProductsPage({ searchParams }: PageProps<"/da
               <div className="flex min-w-0 flex-1 items-center gap-4">
                 <div className="relative aspect-[4/5] w-16 shrink-0 overflow-hidden rounded-xl bg-paper-deep">
                   {p.images[0] ? (
-                    <Image src={p.images[0].image_url} alt="" fill sizes="64px" className={cn("object-cover", !p.is_available && "opacity-60 grayscale-[40%]")} />
+                    <Image thumb src={p.images[0].image_url} alt="" fill sizes="64px" className={cn("object-cover", !p.is_available && "opacity-60 grayscale-[40%]")} />
                   ) : (
                     <Shirt className="absolute inset-0 m-auto size-5 text-taupe" />
                   )}

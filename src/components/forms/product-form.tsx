@@ -16,7 +16,7 @@ import {
   STORAGE_BUCKETS,
 } from "@/lib/constants";
 import { cn } from "@/lib/format";
-import { ACCEPT_ATTR, checkImageFile, storagePathFromUrl } from "@/lib/storage";
+import { ACCEPT_ATTR, checkImageFile, storagePathFromUrl, withThumbPaths } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/lib/types";
 import { uploadImage } from "@/lib/upload";
@@ -279,5 +279,5 @@ async function discard(urls: string[]) {
   const paths = urls
     .map((u) => storagePathFromUrl(u, STORAGE_BUCKETS.products))
     .filter((p): p is string => Boolean(p));
-  if (paths.length) await createClient().storage.from(STORAGE_BUCKETS.products).remove(paths);
+  if (paths.length) await createClient().storage.from(STORAGE_BUCKETS.products).remove(withThumbPaths(paths));
 }

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import { ArrowUpRight, MapPin } from "lucide-react";
 import { cn, initials } from "@/lib/format";
@@ -21,7 +21,7 @@ export function ShopLogo({
       )}
     >
       {shop.logo_url ? (
-        <Image src={shop.logo_url} alt={`${shop.name} лого`} fill sizes={sizes} className="object-cover" />
+        <Image thumb src={shop.logo_url} alt={`${shop.name} лого`} fill sizes={sizes} className="object-cover" />
       ) : (
         <span className="font-display text-[0.8em] font-bold" aria-hidden="true">
           {initials(shop.name)}
@@ -35,9 +35,10 @@ export function ShopCard({ shop }: { shop: ShopWithCount }) {
   return (
     <article className="group min-w-0">
       <Link href={`/shops/${shop.id}`} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-sand ring-1 ring-line transition-shadow duration-500 group-hover:ring-glow/40">
+        <div className="shimmer relative aspect-[4/3] overflow-hidden rounded-2xl ring-1 ring-line transition-shadow duration-500 group-hover:ring-glow/40">
           {shop.cover_url && (
             <Image
+              thumb
               src={shop.cover_url}
               alt=""
               fill

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import { ArrowUpRight, PackagePlus, Shirt } from "lucide-react";
 import { PageHeader, StatCard } from "@/components/dashboard/shell";
@@ -61,7 +61,7 @@ export default async function DashboardHome({ searchParams }: PageProps<"/dashbo
                 <Link href={`/dashboard/products/${p.id}/edit`} className="flex items-center gap-4 py-3 hover:bg-ink/[0.04]">
                   <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-paper-deep">
                     {p.images[0] ? (
-                      <Image src={p.images[0].image_url} alt="" fill sizes="56px" className="object-cover" />
+                      <Image thumb src={p.images[0].image_url} alt="" fill sizes="56px" className="object-cover" />
                     ) : (
                       <Shirt className="m-auto mt-4 size-5 text-taupe" />
                     )}

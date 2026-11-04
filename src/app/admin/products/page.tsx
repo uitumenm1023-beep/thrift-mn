@@ -1,5 +1,5 @@
 import Form from "next/form";
-import Image from "next/image";
+import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import { Search, Shirt } from "lucide-react";
 import { adminDeleteProduct } from "@/app/admin/actions";
@@ -48,7 +48,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
               <div className="flex min-w-0 flex-1 items-center gap-4">
                 <div className="relative aspect-[4/5] w-14 shrink-0 overflow-hidden rounded-xl bg-paper-deep">
                   {p.images[0] ? (
-                    <Image src={p.images[0].image_url} alt="" fill sizes="56px" className="object-cover" />
+                    <Image thumb src={p.images[0].image_url} alt="" fill sizes="56px" className="object-cover" />
                   ) : (
                     <Shirt className="absolute inset-0 m-auto size-5 text-taupe" />
                   )}

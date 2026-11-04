@@ -4,7 +4,7 @@ import { updateTag } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { CATALOG_TAG } from "@/lib/data/catalog";
-import { storagePathFromUrl } from "@/lib/storage";
+import { storagePathFromUrl, withThumbPaths } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult, ShopStatus } from "@/lib/types";
 import { isUuid, str } from "@/lib/validation";
@@ -41,7 +41,7 @@ export async function adminDeleteProduct(productId: string): Promise<ActionResul
   const paths = (images ?? [])
     .map((i) => storagePathFromUrl(i.image_url as string, STORAGE_BUCKETS.products))
     .filter((p): p is string => Boolean(p));
-  if (paths.length) await supabase.storage.from(STORAGE_BUCKETS.products).remove(paths);
+  if (paths.length) await supabase.storage.from(STORAGE_BUCKETS.products).remove(withThumbPaths(paths));
   updateTag(CATALOG_TAG);
   return { ok: true };
 }

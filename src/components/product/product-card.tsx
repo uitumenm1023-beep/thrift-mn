@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import { Shirt } from "lucide-react";
 import { CONDITION_LABELS } from "@/lib/constants";
@@ -11,9 +11,10 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
   return (
     <article className="group relative">
       <Link href={`/products/${product.id}`} className="block" aria-label={product.name}>
-        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-sand ring-1 ring-line transition-shadow duration-500 group-hover:ring-glow/40">
+        <div className="shimmer relative aspect-[4/5] overflow-hidden rounded-2xl ring-1 ring-line transition-shadow duration-500 group-hover:ring-glow/40">
           {product.image_url ? (
             <Image
+              thumb
               src={product.image_url}
               alt={product.name}
               fill

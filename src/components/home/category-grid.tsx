@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import type { Category } from "@/lib/types";
 
@@ -9,7 +9,7 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
         <Link
           key={c.id}
           href={`/products?category=${c.slug}`}
-          className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-sand ring-1 ring-line transition-shadow duration-500 hover:ring-glow/50 md:aspect-[3/4]"
+          className="shimmer group relative aspect-[4/5] overflow-hidden rounded-2xl ring-1 ring-line transition-shadow duration-500 hover:ring-glow/50 md:aspect-[3/4]"
         >
           {c.image_url && (
             <Image

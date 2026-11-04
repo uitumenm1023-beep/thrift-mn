@@ -102,6 +102,20 @@
   font-weight: 500;
 }
 
+/* Moving sheen on image boxes while the picture loads. The image covers it
+   completely once loaded, so it never shows behind a finished image. */
+@utility shimmer {
+  background-color: var(--color-sand);
+  background-image: linear-gradient(100deg, transparent 30%, rgb(230 233 218 / 0.07) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+
 /* Soft lime glow behind dark sections (echoes the brand palette) */
 @utility glow-bg {
   background:
