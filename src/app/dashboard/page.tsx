@@ -2,6 +2,7 @@ import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import { ArrowUpRight, PackagePlus, Shirt } from "lucide-react";
 import { PageHeader, StatCard } from "@/components/dashboard/shell";
+import { PlanCard } from "@/components/dashboard/plan-card";
 import { ShopStatusNotice } from "@/components/dashboard/shop-status-notice";
 import { ButtonLink } from "@/components/ui/button";
 import { FormMessage } from "@/components/ui/field";
@@ -40,6 +41,7 @@ export default async function DashboardHome({ searchParams }: PageProps<"/dashbo
         </div>
       )}
       <ShopStatusNotice shop={shop} />
+      {shop && <PlanCard shop={shop} available={stats.available} />}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Нийт бараа" value={stats.total} />

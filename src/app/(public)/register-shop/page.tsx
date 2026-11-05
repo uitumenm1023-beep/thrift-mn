@@ -3,11 +3,12 @@ import Link from "next/link";
 import { RegisterShopForm } from "./register-form";
 import { SetupNotice } from "@/components/layout/setup-notice";
 import { Container } from "@/components/ui/misc";
+import { THRIFTUB_INSTAGRAM } from "@/lib/constants";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const metadata: Metadata = {
   title: "Дэлгүүр бүртгүүлэх",
-  description: "Second hand, vintage дэлгүүрээ ThriftUB-д үнэгүй бүртгүүлж, бараагаа олон хүнд хүргээрэй.",
+  description: "Second hand, vintage дэлгүүрээ ThriftUB-д бүртгүүлээрэй — эхний сард 200 хүртэл бараа үнэгүй.",
   alternates: { canonical: "/register-shop" },
 };
 
@@ -26,8 +27,11 @@ export default function RegisterShopPage() {
             <p className="eyebrow">Дэлгүүр эзэмшигчдэд</p>
             <h1 className="mt-3 font-serif font-semibold text-3xl leading-tight tracking-tight sm:text-4xl">Дэлгүүрээ бүртгүүлэх</h1>
             <p className="mt-4 text-[15px] leading-relaxed text-muted">
-              ThriftUB ашиглах нь үнэгүй. Бид төлбөр, хүргэлт зохицуулдаггүй — худалдан авагчид тантай
-              Instagram, Facebook эсвэл утсаар шууд холбогдоно.
+              Эхний 1 сард 200 хүртэл бараагаа үнэгүй оруулна. 2 дахь сараас Pro (500 бараа, 59,000₮), Premium (1000 бараа, 89,000₮), Max (хязгааргүй, 139,000₮) багцаас сонгоно. Багц авах бол{" "}
+              <a href={THRIFTUB_INSTAGRAM} target="_blank" rel="noopener noreferrer" className="border-b border-ink/30 font-medium text-ink hover:border-glow hover:text-glow">Instagram хуудас</a>{" "}
+              руу маань DM бичээрэй.
+              Худалдан авалтын төлбөр, хүргэлтийг бид зохицуулдаггүй — худалдан авагчид тантай Instagram, Facebook
+              эсвэл утсаар шууд холбогдоно.
             </p>
             <ol className="mt-8 space-y-4">
               {STEPS.map((s, i) => (

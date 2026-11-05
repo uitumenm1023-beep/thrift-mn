@@ -59,6 +59,12 @@ function fail(what: string, error: { message: string }): never {
 
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
+/** Resets the ordering boost of shops whose paid package ran out (see 0004_plans.sql). */
+async function expirePlans() {
+  const { error } = await createPublicClient().rpc("expire_plans");
+  if (error) console.error("[catalog] expire_plans:", error.message);
+}
+
 // ---------- Demo-mode helpers ----------
 
 function demoCard(p: Product): ProductCardData {
@@ -170,8 +176,10 @@ export async function getProducts(filters: ProductFilters): Promise<Paginated<Pr
       ? query.order("price", { ascending: true }).order("created_at", { ascending: false })
       : filters.sort === "price_desc"
         ? query.order("price", { ascending: false }).order("created_at", { ascending: false })
-        : query.order("created_at", { ascending: false });
+        : // Default order: bigger packages first (Max → Premium → Pro), then newest.
+          query.order("boost", { ascending: false }).order("created_at", { ascending: false });
 
+  await expirePlans();
   const { data, error, count } = await query.range(from, from + PAGE_SIZE - 1);
   // Asking for a page past the end returns a range error — treat it as empty.
   if (error && error.code !== "PGRST103") fail("бараа", error);
@@ -193,10 +201,12 @@ export async function getLatestProducts(limit = 8): Promise<ProductCardData[]> {
     return DEMO_PRODUCTS.filter((p) => p.is_available).slice(0, limit).map(demoCard);
   }
 
+  await expirePlans();
   const { data, error } = await createPublicClient()
     .from("products")
     .select(CARD_SELECT)
     .eq("is_available", true)
+    .order("boost", { ascending: false })
     .order("created_at", { ascending: false })
     .order("display_order", { referencedTable: "product_images" })
     .limit(1, { referencedTable: "product_images" })

@@ -187,5 +187,5 @@ delete from public.shops where is_demo = true;   -- products and images cascade
 
 ## Placeholders to replace
 
-- **Footer contacts** (`src/components/layout/site-footer.tsx`): hello@thriftub.mn, the phone number and the social links are placeholders, marked `TODO`.
+- **Footer contacts** (`src/components/layout/site-footer.tsx`): set to the real ThriftUB email, phone and Instagram (@ub_thriftmn).
 - **Demo images:** clean product illustrations in `public/demo` (sources in `marketing/reels/source`). Delete the demo shops before launch (see above).

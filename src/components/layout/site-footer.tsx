@@ -1,15 +1,14 @@
 import Link from "next/link";
 import { ArrowRight, Mail, Phone } from "lucide-react";
-import { FacebookIcon, InstagramIcon } from "@/components/icons";
+import { InstagramIcon } from "@/components/icons";
 import { buttonClasses } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
+import { THRIFTUB_INSTAGRAM } from "@/lib/constants";
 
-// TODO: replace with the real ThriftUB contacts before launch.
 const CONTACT = {
-  email: "hello@thriftub.mn",
-  phone: "7700 0000",
-  instagram: "https://www.instagram.com/thriftub.mn",
-  facebook: "https://www.facebook.com/thriftub.mn",
+  email: "uitumenm1023@gmail.com",
+  phone: "8827 2822",
+  instagram: THRIFTUB_INSTAGRAM,
 };
 
 export function SiteFooter() {
@@ -29,10 +28,6 @@ export function SiteFooter() {
               <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" aria-label="ThriftUB Instagram"
                 className="grid size-10 place-items-center rounded-full border border-line transition-colors hover:border-glow hover:text-glow">
                 <InstagramIcon className="size-[18px]" />
-              </a>
-              <a href={CONTACT.facebook} target="_blank" rel="noopener noreferrer" aria-label="ThriftUB Facebook"
-                className="grid size-10 place-items-center rounded-full border border-line transition-colors hover:border-glow hover:text-glow">
-                <FacebookIcon className="size-[18px]" />
               </a>
             </div>
           </div>

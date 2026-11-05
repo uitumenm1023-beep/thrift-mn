@@ -6,7 +6,7 @@ import { STORAGE_BUCKETS } from "@/lib/constants";
 import { CATALOG_TAG } from "@/lib/data/catalog";
 import { storagePathFromUrl, withThumbPaths } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/server";
-import type { ActionResult, ShopStatus } from "@/lib/types";
+import type { ActionResult, ShopPlan, ShopStatus } from "@/lib/types";
 import { isUuid, str } from "@/lib/validation";
 
 // Admin-only actions. The role check here is repeated by RLS (is_admin())
@@ -27,6 +27,38 @@ export async function setShopStatus(shopId: string, status: ShopStatus): Promise
   const supabase = await createClient();
   const { data, error } = await supabase.from("shops").update({ status }).eq("id", shopId).select("id");
   if (error || !data?.length) return { ok: false, error: "Төлөв өөрчлөхөд алдаа гарлаа." };
+  updateTag(CATALOG_TAG);
+  return { ok: true };
+}
+
+const PLAN_VALUES: ShopPlan[] = ["trial", "pro", "premium", "max"];
+
+/**
+ * Turns on a package after the shop has paid (by DM / bank transfer).
+ * Same plan and not yet expired → the months are added to the current end
+ * date; otherwise they count from today.
+ */
+export async function setShopPlan(shopId: string, plan: ShopPlan, months: number): Promise<ActionResult> {
+  if (!(await isAdmin())) return DENIED;
+  if (!isUuid(shopId) || !PLAN_VALUES.includes(plan) || ![1, 3, 6, 12].includes(months)) {
+    return { ok: false, error: "Буруу хүсэлт." };
+  }
+  const supabase = await createClient();
+  const { data: shop } = await supabase.from("shops").select("plan,plan_expires_at").eq("id", shopId).maybeSingle();
+  if (!shop) return { ok: false, error: "Дэлгүүр олдсонгүй." };
+
+  const now = new Date();
+  const current = shop.plan_expires_at ? new Date(shop.plan_expires_at as string) : null;
+  const start = shop.plan === plan && current && current > now ? current : now;
+  const expires = new Date(start);
+  expires.setMonth(expires.getMonth() + months);
+
+  const { data, error } = await supabase
+    .from("shops")
+    .update({ plan, plan_expires_at: expires.toISOString() })
+    .eq("id", shopId)
+    .select("id");
+  if (error || !data?.length) return { ok: false, error: "Багц хадгалахад алдаа гарлаа." };
   updateTag(CATALOG_TAG);
   return { ok: true };
 }

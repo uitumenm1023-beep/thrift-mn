@@ -1,4 +1,4 @@
-import type { ProductCondition, ShopStatus } from "./types";
+import type { ProductCondition, ShopPlan, ShopStatus } from "./types";
 
 export const SITE_NAME = "ThriftUB";
 export const SITE_DESCRIPTION =
@@ -52,6 +52,18 @@ export const DISTRICT_CENTERS: Record<string, [number, number]> = {
   "Багануур": [47.83, 108.37],
   "Багахангай": [47.36, 107.48],
 };
+
+/** ThriftUB's own Instagram. Shops DM it to buy or renew a package. */
+export const THRIFTUB_INSTAGRAM = "https://www.instagram.com/ub_thriftmn";
+
+export const PLANS: Record<ShopPlan, { label: string; limit: number | null; price: number; note: string }> = {
+  trial: { label: "Эхний сар", limit: 200, price: 0, note: "Үнэгүй, 1 сар" },
+  pro: { label: "Pro", limit: 500, price: 59000, note: "Энгийн дараалал" },
+  premium: { label: "Premium", limit: 1000, price: 89000, note: "Pro-оос түрүүнд харагдана" },
+  max: { label: "Max", limit: null, price: 139000, note: "Хамгийн түрүүнд харагдана" },
+};
+
+export const PAID_PLANS: ShopPlan[] = ["pro", "premium", "max"];
 
 export const SHOP_STATUS_LABELS: Record<ShopStatus, string> = {
   pending: "Хүлээгдэж буй",

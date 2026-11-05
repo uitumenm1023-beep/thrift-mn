@@ -37,6 +37,19 @@ async function removeFiles(bucket: string, urls: (string | null | undefined)[]) 
   if (error) console.error("[storage] remove failed:", error.message);
 }
 
+/** Turns the database's package-limit errors (0004_plans.sql) into a message. */
+function planError(message: string | undefined): string | null {
+  if (!message) return null;
+  if (message.includes("PLAN_EXPIRED")) {
+    return "Багцын хугацаа дууссан. Сунгах бол Instagram @ub_thriftmn руу DM бичээрэй.";
+  }
+  const m = message.match(/PLAN_LIMIT:(\d+)/);
+  if (m) {
+    return `Таны багцад ${m[1]} хүртэл бараа худалдаанд байна. Зарагдсан барааг тэмдэглэх эсвэл багцаа ахиулахаар Instagram @ub_thriftmn руу DM бичээрэй.`;
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------- Shop
 
 export async function saveShopProfile(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
@@ -168,6 +181,8 @@ export async function saveProduct(formData: FormData): Promise<ActionResult<{ id
   if (productId) {
     const { error } = await supabase.from("products").update(values).eq("id", productId);
     if (error) {
+      const plan = planError(error.message);
+      if (plan) return { ok: false, error: plan };
       console.error("[saveProduct:update]", error.message);
       return { ok: false, error: "Хадгалахад алдаа гарлаа. Дахин оролдоно уу." };
     }
@@ -178,6 +193,8 @@ export async function saveProduct(formData: FormData): Promise<ActionResult<{ id
       .select("id")
       .single();
     if (error || !data) {
+      const plan = planError(error?.message);
+      if (plan) return { ok: false, error: plan };
       console.error("[saveProduct:insert]", error?.message);
       return { ok: false, error: "Бараа нэмэхэд алдаа гарлаа. Дахин оролдоно уу." };
     }
@@ -215,7 +232,7 @@ export async function setProductAvailability(id: string, available: boolean): Pr
     .eq("id", id)
     .eq("shop_id", ctx.shop.id)
     .select("id");
-  if (error || !data?.length) return { ok: false, error: "Төлөв өөрчлөхөд алдаа гарлаа." };
+  if (error || !data?.length) return { ok: false, error: planError(error?.message) ?? "Төлөв өөрчлөхөд алдаа гарлаа." };
   updateTag(CATALOG_TAG);
   return { ok: true, message: available ? "Худалдаанд гаргалаа." : "Зарагдсан гэж тэмдэглэлээ." };
 }

@@ -4,6 +4,7 @@
 export type UserRole = "customer" | "shop_owner" | "admin";
 export type ShopStatus = "pending" | "approved" | "rejected" | "suspended";
 export type ProductCondition = "new" | "excellent" | "good" | "used";
+export type ShopPlan = "trial" | "pro" | "premium" | "max";
 
 export interface Profile {
   id: string;
@@ -34,6 +35,9 @@ export interface Shop {
   district: string | null;
   status: ShopStatus;
   is_demo: boolean;
+  /** Package (0004_plans.sql). Only an admin can change these. */
+  plan: ShopPlan;
+  plan_expires_at: string | null;
   created_at: string;
   updated_at: string;
 }

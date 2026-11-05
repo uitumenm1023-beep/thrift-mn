@@ -56,6 +56,7 @@ const parts = [
   "migrations/0001_schema.sql",
   "migrations/0002_rls.sql",
   "migrations/0003_storage.sql",
+  "migrations/0004_plans.sql",
   "seed.sql",
 ];
 const setup =

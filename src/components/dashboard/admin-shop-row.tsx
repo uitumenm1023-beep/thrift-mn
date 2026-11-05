@@ -1,12 +1,15 @@
 import Link from "next/link";
+import { PlanControl } from "@/components/dashboard/plan-control";
 import { ShopModeration } from "@/components/dashboard/shop-moderation";
 import { ShopStatusBadge } from "@/components/dashboard/status-badge";
 import { ShopLogo } from "@/components/shop/shop-card";
 import { Badge } from "@/components/ui/misc";
 import type { AdminShop } from "@/lib/data/admin";
-import { formatDate, formatPhone } from "@/lib/format";
+import { PLANS } from "@/lib/constants";
+import { formatDate, formatPhone, planState } from "@/lib/format";
 
 export function AdminShopRow({ shop }: { shop: AdminShop }) {
+  const plan = planState(shop);
   return (
     <li className="flex flex-col gap-4 py-5 md:flex-row md:items-start">
       <ShopLogo shop={shop} className="size-12 text-base ring-0" />
@@ -19,6 +22,10 @@ export function AdminShopRow({ shop }: { shop: AdminShop }) {
           )}
           <ShopStatusBadge status={shop.status} />
           {shop.is_demo && <Badge>Демо</Badge>}
+          <Badge tone={plan.expired ? "danger" : shop.plan === "trial" ? "neutral" : "success"}>
+            {PLANS[shop.plan].label}
+            {plan.expiresAt && (plan.expired ? " · дууссан" : ` · ${formatDate(shop.plan_expires_at!)} хүртэл`)}
+          </Badge>
         </div>
         <p className="mt-1 text-[13px] text-muted">
           {shop.owner?.full_name || "Эзэмшигчгүй"} · {formatPhone(shop.phone)} · {shop.district ? `${shop.district}, ` : ""}{shop.address}
@@ -34,7 +41,10 @@ export function AdminShopRow({ shop }: { shop: AdminShop }) {
         </p>
         {shop.description && <p className="mt-2 line-clamp-2 max-w-2xl text-sm text-ink-soft">{shop.description}</p>}
       </div>
-      <ShopModeration shopId={shop.id} status={shop.status} />
+      <div className="flex flex-col items-start gap-3 md:items-end">
+        <ShopModeration shopId={shop.id} status={shop.status} />
+        {!shop.is_demo && shop.status === "approved" && <PlanControl shopId={shop.id} plan={shop.plan} />}
+      </div>
     </li>
   );
 }

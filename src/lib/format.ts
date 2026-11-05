@@ -1,3 +1,6 @@
+import type { Shop } from "./types";
+
+
 /** 125000 → "125,000₮" */
 export function formatPrice(value: number) {
   return `${Math.round(value).toLocaleString("en-US")}₮`;
@@ -40,4 +43,12 @@ export function cn(...classes: (string | false | null | undefined)[]) {
 /** True when a shop's address is actually a map link (e.g. maps.app.goo.gl/...). */
 export function isMapLink(address: string) {
   return /^https?:\/\//i.test(address.trim());
+}
+
+/** The shop's current package: label, limit (0 once expired) and days left. */
+export function planState(shop: Pick<Shop, "plan" | "plan_expires_at">, now = Date.now()) {
+  const expiresAt = shop.plan_expires_at ? new Date(shop.plan_expires_at) : null;
+  const expired = expiresAt ? expiresAt.getTime() < now : false;
+  const daysLeft = expiresAt ? Math.max(0, Math.ceil((expiresAt.getTime() - now) / 86_400_000)) : null;
+  return { plan: shop.plan, expiresAt, expired, daysLeft };
 }
