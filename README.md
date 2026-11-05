@@ -116,7 +116,7 @@ Users can never make themselves admin: the sign-up trigger never assigns the rol
 
 ### Server region
 
-`vercel.json` runs the server functions in Hong Kong (`hkg1`), the closest Vercel region to Mongolia and to Asian Supabase regions. If your Supabase project is in another part of the world, pick the Vercel region closest to it.
+`vercel.json` runs the server functions in Frankfurt (`fra1`), next to the Supabase project (eu-central-1). Each page makes several database requests, so the server should sit beside the database. If the Supabase project moves, pick the Vercel region closest to it.
 
 ## Security model
 
