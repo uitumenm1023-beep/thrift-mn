@@ -39,8 +39,8 @@ insert into public.shops (id, owner_id, name, description, logo_url, cover_url, 
 ${rows(DEMO_SHOPS.map((s) => [s.id, null, s.name, s.description, s.logo_url, s.cover_url, s.phone, s.instagram_url, s.facebook_url, s.address, s.district, s.status, true, s.created_at]))}
 on conflict (id) do nothing;
 
-insert into public.products (id, shop_id, category_id, name, description, price, size, condition, is_available, is_demo, created_at) values
-${rows(DEMO_PRODUCTS.map((p) => [p.id, p.shop_id, p.category_id, p.name, p.description, p.price, p.size, p.condition, p.is_available, true, p.created_at]))}
+insert into public.products (id, shop_id, category_id, name, description, price, original_price, size, condition, is_available, is_demo, created_at) values
+${rows(DEMO_PRODUCTS.map((p) => [p.id, p.shop_id, p.category_id, p.name, p.description, p.price, p.original_price, p.size, p.condition, p.is_available, true, p.created_at]))}
 on conflict (id) do nothing;
 
 insert into public.product_images (id, product_id, image_url, display_order) values
@@ -57,6 +57,7 @@ const parts = [
   "migrations/0002_rls.sql",
   "migrations/0003_storage.sql",
   "migrations/0004_plans.sql",
+  "migrations/0005_sale_price.sql",
   "seed.sql",
 ];
 const setup =

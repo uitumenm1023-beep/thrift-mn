@@ -15,7 +15,7 @@ import {
   SHOE_SIZES,
   STORAGE_BUCKETS,
 } from "@/lib/constants";
-import { cn } from "@/lib/format";
+import { cn, discountPercent } from "@/lib/format";
 import { ACCEPT_ATTR, checkImageFile, storagePathFromUrl, withThumbPaths } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/lib/types";
@@ -35,6 +35,7 @@ export interface ProductFormValues {
   name: string;
   description: string;
   price: number | "";
+  original_price?: number | null;
   category_id: string;
   size: string;
   condition: string;
@@ -61,6 +62,12 @@ export function ProductForm({
   const [step, setStep] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const isEdit = Boolean(initial?.id);
+  // Sale: the shop enters the original price and the discounted price.
+  const [onSale, setOnSale] = useState(Boolean(initial?.original_price));
+  const [price, setPrice] = useState(String(initial?.price ?? ""));
+  const [original, setOriginal] = useState(String(initial?.original_price ?? ""));
+  const toNum = (s: string) => Number(s.replace(/[\s,₮]/g, "")) || 0;
+  const percent = onSale ? discountPercent(toNum(price), toNum(original)) : null;
 
   // Free blob previews when the form unmounts.
   const photosRef = useRef(photos);
@@ -221,9 +228,34 @@ export function ProductForm({
         <Field label="Барааны нэр" htmlFor="name" required error={errors.name} className="sm:col-span-2">
           <Input id="name" name="name" defaultValue={v("name")} maxLength={120} required placeholder="Жишээ нь: Vintage ноосон пальто" {...errorProps("name", errors.name)} />
         </Field>
-        <Field label="Үнэ (₮)" htmlFor="price" required error={errors.price}>
-          <Input id="price" name="price" inputMode="numeric" defaultValue={v("price")} required placeholder="45000" {...errorProps("price", errors.price)} />
-        </Field>
+        <fieldset className="space-y-4 rounded-2xl border border-line p-4 sm:col-span-2">
+          <legend className="px-1 text-[13px] font-medium text-ink-soft">Үнэ</legend>
+          <label className="flex items-center gap-2.5 text-sm">
+            <input type="checkbox" name="on_sale" checked={onSale} onChange={(e) => setOnSale(e.target.checked)} className="size-4 accent-glow" />
+            Хямдралтай зарна
+            <span className="text-[12px] text-muted">— анхны болон хямдарсан үнээ оруулна</span>
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {onSale && (
+              <Field label="Анхны үнэ (₮)" htmlFor="original_price" required error={errors.original_price} hint="Хямдралаас өмнөх үнэ">
+                <Input id="original_price" name="original_price" inputMode="numeric" value={original} onChange={(e) => setOriginal(e.target.value)}
+                  required placeholder="60000" {...errorProps("original_price", errors.original_price)} />
+              </Field>
+            )}
+            <Field label={onSale ? "Хямдарсан үнэ (₮)" : "Үнэ (₮)"} htmlFor="price" required error={errors.price}
+              hint={onSale ? "Худалдан авагчийн төлөх үнэ" : undefined}>
+              <Input id="price" name="price" inputMode="numeric" value={price} onChange={(e) => setPrice(e.target.value)}
+                required placeholder="45000" {...errorProps("price", errors.price)} />
+            </Field>
+          </div>
+          {onSale && (
+            <p className="text-[13px] text-muted" aria-live="polite">
+              {percent
+                ? <>Сайт дээр <span className="rounded-md bg-glow px-1.5 py-0.5 font-mono text-[12px] font-medium text-night">-{percent}%</span> хямдралтай гэж харагдана.</>
+                : "Анхны үнэ хямдарсан үнээс их байх ёстой."}
+            </p>
+          )}
+        </fieldset>
         <Field label="Ангилал" htmlFor="category_id" required error={errors.category_id}>
           <Select id="category_id" name="category_id" defaultValue={v("category_id")} required {...errorProps("category_id", errors.category_id)}>
             <option value="">Сонгох</option>

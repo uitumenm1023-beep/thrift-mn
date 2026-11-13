@@ -26,6 +26,7 @@ export default async function EditProductPage({ params }: PageProps<"/dashboard/
           name: product.name,
           description: product.description,
           price: product.price,
+          original_price: product.original_price,
           category_id: product.category_id ?? "",
           size: product.size,
           condition: product.condition,

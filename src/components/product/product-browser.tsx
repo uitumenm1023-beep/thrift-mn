@@ -48,6 +48,7 @@ export async function ProductBrowser({ filters, basePath = "/products", lockedSh
   );
   const shop = !lockedShopId && shops.find((s) => s.id === filters.shop);
   if (shop) chips.push({ label: shop.name, href: href({ shop: "" }) });
+  if (filters.onSale) chips.push({ label: "Хямдралтай", href: href({ onSale: false }) });
   if (filters.includeSold) chips.push({ label: "Зарагдсан бараа орсон", href: href({ includeSold: false }) });
 
   return (

@@ -7,7 +7,7 @@ import { ShopStatusNotice } from "@/components/dashboard/shop-status-notice";
 import { ButtonLink } from "@/components/ui/button";
 import { FormMessage } from "@/components/ui/field";
 import { getCurrentUser, getOwnProducts, getOwnShop, getOwnStats } from "@/lib/data/owner";
-import { formatPrice } from "@/lib/format";
+import { discountPercent, formatPrice } from "@/lib/format";
 
 export const instant = false;
 
@@ -70,7 +70,7 @@ export default async function DashboardHome({ searchParams }: PageProps<"/dashbo
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{p.name}</p>
-                    <p className="text-[13px] text-muted">{formatPrice(p.price)} · {p.size}</p>
+                    <p className="text-[13px] text-muted">{formatPrice(p.price)}{p.original_price ? ` (−${discountPercent(p.price, p.original_price)}%)` : ""} · {p.size}</p>
                   </div>
                   <span className={`text-[12px] ${p.is_available ? "text-success" : "text-muted"}`}>
                     {p.is_available ? "Худалдаанд" : "Зарагдсан"}

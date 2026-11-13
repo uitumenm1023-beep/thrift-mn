@@ -45,6 +45,12 @@ export function isMapLink(address: string) {
   return /^https?:\/\//i.test(address.trim());
 }
 
+/** 100,000 → 70,000 = 30. Null when the product is not on sale. */
+export function discountPercent(price: number, original: number | null | undefined) {
+  if (!original || original <= price) return null;
+  return Math.max(1, Math.round((1 - price / original) * 100));
+}
+
 /** The shop's current package: label, limit (0 once expired) and days left. */
 export function planState(shop: Pick<Shop, "plan" | "plan_expires_at">, now = Date.now()) {
   const expiresAt = shop.plan_expires_at ? new Date(shop.plan_expires_at) : null;

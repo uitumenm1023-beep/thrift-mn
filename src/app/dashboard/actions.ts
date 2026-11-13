@@ -132,6 +132,8 @@ function readProduct(formData: FormData) {
     name: str(formData.get("name")),
     description: str(formData.get("description")),
     price: str(formData.get("price")),
+    on_sale: formData.get("on_sale") === "on",
+    original_price: str(formData.get("original_price")),
     category_id: str(formData.get("category_id")),
     size: str(formData.get("size")),
     condition: str(formData.get("condition")),

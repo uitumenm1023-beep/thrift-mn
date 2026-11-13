@@ -10,7 +10,7 @@ import { Pagination } from "@/components/product/product-browser";
 import { Input } from "@/components/ui/field";
 import { Badge } from "@/components/ui/misc";
 import { getAdminProducts } from "@/lib/data/admin";
-import { formatDate, formatPrice } from "@/lib/format";
+import { discountPercent, formatDate, formatPrice } from "@/lib/format";
 
 export const instant = false;
 
@@ -60,7 +60,7 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
                     <p className="truncate font-medium">{p.name}</p>
                   )}
                   <p className="mt-0.5 text-[13px] text-muted">
-                    {formatPrice(p.price)} · {p.shop.name} · {formatDate(p.created_at)}
+                    {formatPrice(p.price)}{p.original_price ? ` (−${discountPercent(p.price, p.original_price)}%)` : ""} · {p.shop.name} · {formatDate(p.created_at)}
                   </p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     <Badge tone={p.is_available ? "success" : "neutral"}>{p.is_available ? "Худалдаанд" : "Зарагдсан"}</Badge>

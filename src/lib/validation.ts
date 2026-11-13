@@ -90,6 +90,9 @@ export interface ProductInput {
   name: string;
   description: string;
   price: string;
+  /** "Хямдралтай" checkbox and the price before the discount. */
+  on_sale: boolean;
+  original_price: string;
   category_id: string;
   size: string;
   condition: string;
@@ -104,6 +107,15 @@ export function validateProduct(input: ProductInput) {
   const price = Number(input.price.replace(/[\s,₮]/g, ""));
   if (!Number.isInteger(price) || price < 0 || price > 100_000_000)
     errors.price = "Үнийг төгрөгөөр, бүхэл тоогоор оруулна уу.";
+  let original_price: number | null = null;
+  if (input.on_sale) {
+    const o = Number(input.original_price.replace(/[\s,₮]/g, ""));
+    if (!input.original_price || !Number.isInteger(o) || o <= 0 || o > 100_000_000)
+      errors.original_price = "Хямдралаас өмнөх үнийг оруулна уу.";
+    else if (!errors.price && o <= price)
+      errors.original_price = "Анхны үнэ хямдарсан үнээс их байх ёстой.";
+    else original_price = o;
+  }
   if (!isUuid(input.category_id)) errors.category_id = "Ангилал сонгоно уу.";
   if (!SIZE_OPTIONS.includes(input.size)) errors.size = "Хэмжээ сонгоно уу.";
   if (!CONDITIONS.some((c) => c.value === input.condition))
@@ -115,6 +127,7 @@ export function validateProduct(input: ProductInput) {
       name: input.name,
       description: input.description,
       price,
+      original_price,
       category_id: input.category_id,
       size: input.size,
       condition: input.condition as ProductCondition,

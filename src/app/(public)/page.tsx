@@ -7,12 +7,17 @@ import { ProductGrid, ProductGridSkeleton } from "@/components/product/product-c
 import { ShopCard } from "@/components/shop/shop-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Container, SectionHeading, Skeleton } from "@/components/ui/misc";
-import { getCategories, getLatestProducts, getPopularShops } from "@/lib/data/catalog";
+import { getCategories, getLatestProducts, getPopularShops, getProducts } from "@/lib/data/catalog";
+import { parseProductFilters } from "@/lib/filters";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
+
+      <Suspense fallback={null}>
+        <SaleProducts />
+      </Suspense>
 
       <section className="py-16 sm:py-24">
         <Container>
@@ -60,6 +65,24 @@ function SeeAll({ href, children }: { href: string; children: React.ReactNode })
       {children}
       <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
     </Link>
+  );
+}
+
+/** Products with a sale price. The whole section is hidden when there are none. */
+async function SaleProducts() {
+  const { items, total } = await getProducts(parseProductFilters({ sale: "1" }));
+  if (!items.length) return null;
+  return (
+    <section className="pt-16 sm:pt-24">
+      <Container>
+        <SectionHeading
+          eyebrow="Хямдрал"
+          title="Хямдралтай бараа"
+          action={total > 4 ? <SeeAll href="/products?sale=1">Бүх хямдрал</SeeAll> : undefined}
+        />
+        <ProductGrid products={items.slice(0, 4)} />
+      </Container>
+    </section>
   );
 }
 

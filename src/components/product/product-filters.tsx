@@ -49,6 +49,7 @@ function readForm(form: HTMLFormElement, current: ProductFilters): ProductFilter
     conditions: fd.getAll("condition").map(String) as ProductCondition[],
     shop: fd.has("shop") ? String(fd.get("shop")) : current.shop,
     includeSold: fd.get("sold") === "1",
+    onSale: fd.get("sale") === "1",
     ...readDistricts(fd, current),
     page: 1,
   };
@@ -189,6 +190,7 @@ export function ProductFilterPanel({ filters, categories, shops, basePath = "/pr
           )}
 
           <FilterGroup title="Бусад">
+            <Checkbox name="sale" value="1" label="Зөвхөн хямдралтай бараа" defaultChecked={filters.onSale} />
             <Checkbox name="sold" value="1" label="Зарагдсан барааг харуулах" defaultChecked={filters.includeSold} />
           </FilterGroup>
 

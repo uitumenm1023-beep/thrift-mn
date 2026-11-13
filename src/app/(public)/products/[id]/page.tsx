@@ -10,15 +10,16 @@ import { ShopLogo } from "@/components/shop/shop-card";
 import { Container, Skeleton } from "@/components/ui/misc";
 import { CONDITION_LABELS } from "@/lib/constants";
 import { getMoreFromShop, getProductById } from "@/lib/data/catalog";
-import { formatPhone, formatPrice, isMapLink } from "@/lib/format";
+import { discountPercent, formatPhone, formatPrice, isMapLink } from "@/lib/format";
 
 export async function generateMetadata({ params }: PageProps<"/products/[id]">): Promise<Metadata> {
   const { id } = await params;
   const product = await getProductById(id);
   if (!product) return { title: "Бараа олдсонгүй" };
 
+  const off = discountPercent(product.price, product.original_price);
   const description =
-    `${formatPrice(product.price)} · ${product.size} · ${CONDITION_LABELS[product.condition]} — ${product.shop.name}. ` +
+    `${formatPrice(product.price)}${off ? ` (-${off}%, өмнө нь ${formatPrice(product.original_price!)})` : ""} · ${product.size} · ${CONDITION_LABELS[product.condition]} — ${product.shop.name}. ` +
     product.description.slice(0, 120);
   return {
     title: `${product.name} — ${formatPrice(product.price)}`,
@@ -47,6 +48,7 @@ async function ProductDetailView({ params }: Pick<PageProps<"/products/[id]">, "
 
   const { shop } = product;
   const sold = !product.is_available;
+  const off = discountPercent(product.price, product.original_price);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -91,7 +93,15 @@ async function ProductDetailView({ params }: Pick<PageProps<"/products/[id]">, "
             <div className="lg:sticky lg:top-28">
               <Link href={`/shops/${shop.id}`} className="eyebrow hover:!text-ink">{shop.name}</Link>
               <h1 className="mt-3 font-serif font-semibold text-2xl leading-tight tracking-tight sm:text-3xl">{product.name}</h1>
-              <p className="mt-4 font-mono text-2xl font-medium text-glow">{formatPrice(product.price)}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <p className="font-mono text-2xl font-medium text-glow">{formatPrice(product.price)}</p>
+                {off && (
+                  <>
+                    <p className="font-mono text-lg text-muted line-through decoration-rust/80">{formatPrice(product.original_price!)}</p>
+                    <span className="rounded-full bg-glow px-2.5 py-1 font-mono text-[12px] font-medium text-night">-{off}% хямдрал</span>
+                  </>
+                )}
+              </div>
 
               <p className="mt-3 flex items-center gap-2 text-sm">
                 <span className={`size-2 rounded-full ${sold ? "bg-taupe" : "bg-success"}`} aria-hidden="true" />

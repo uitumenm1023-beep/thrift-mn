@@ -49,6 +49,8 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  /** Price before the discount. Set = the product is on sale (0005_sale_price.sql). */
+  original_price: number | null;
   size: string;
   condition: ProductCondition;
   is_available: boolean;
@@ -70,6 +72,7 @@ export interface ProductCardData {
   id: string;
   name: string;
   price: number;
+  original_price: number | null;
   size: string;
   condition: ProductCondition;
   is_available: boolean;

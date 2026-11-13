@@ -18,6 +18,8 @@ export interface ProductFilters {
   sort: SortValue;
   page: number;
   includeSold: boolean;
+  /** Only products with a sale price. */
+  onSale: boolean;
 }
 
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -48,6 +50,7 @@ export function parseProductFilters(sp: SearchParams): ProductFilters {
     sort: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "newest",
     page: Number.isFinite(page) && page > 0 ? Math.min(page, 500) : 1,
     includeSold: first(sp.sold) === "1",
+    onSale: first(sp.sale) === "1",
   };
 }
 
@@ -64,6 +67,7 @@ export function filtersToQuery(f: Partial<ProductFilters>) {
   f.districts?.forEach((d) => params.append("district", d));
   if (f.near && f.districts?.length) params.set("near", "1");
   if (f.sort && f.sort !== "newest") params.set("sort", f.sort);
+  if (f.onSale) params.set("sale", "1");
   if (f.includeSold) params.set("sold", "1");
   if (f.page && f.page > 1) params.set("page", String(f.page));
   const s = params.toString();
@@ -78,6 +82,7 @@ export function countActiveFilters(f: ProductFilters) {
     f.conditions.length +
     (f.shop ? 1 : 0) +
     f.districts.length +
-    (f.includeSold ? 1 : 0)
+    (f.includeSold ? 1 : 0) +
+    (f.onSale ? 1 : 0)
   );
 }

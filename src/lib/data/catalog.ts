@@ -29,7 +29,7 @@ import { isUuid } from "@/lib/validation";
 export const CATALOG_TAG = "catalog";
 
 const CARD_SELECT =
-  "id,name,price,size,condition,is_available,is_demo,created_at,shop:shops!inner(id,name,district),product_images(image_url,display_order)";
+  "id,name,price,original_price,size,condition,is_available,is_demo,created_at,shop:shops!inner(id,name,district),product_images(image_url,display_order)";
 
 type CardRow = Omit<ProductCardData, "image_url" | "shop"> & {
   shop: { id: string; name: string } | { id: string; name: string }[];
@@ -43,6 +43,7 @@ function toCard(row: CardRow): ProductCardData {
     id: row.id,
     name: row.name,
     price: row.price,
+    original_price: row.original_price ?? null,
     size: row.size,
     condition: row.condition,
     is_available: row.is_available,
@@ -74,6 +75,7 @@ function demoCard(p: Product): ProductCardData {
     id: p.id,
     name: p.name,
     price: p.price,
+    original_price: p.original_price,
     size: p.size,
     condition: p.condition,
     is_available: p.is_available,
@@ -130,6 +132,7 @@ export async function getProducts(filters: ProductFilters): Promise<Paginated<Pr
     let list = DEMO_PRODUCTS.filter(
       (p) =>
         (filters.includeSold || p.is_available) &&
+        (!filters.onSale || p.original_price != null) &&
         (!q || p.name.toLowerCase().includes(q)) &&
         (!category || p.category_id === category.id) &&
         (filters.minPrice == null || p.price >= filters.minPrice) &&
@@ -162,6 +165,7 @@ export async function getProducts(filters: ProductFilters): Promise<Paginated<Pr
     .limit(1, { referencedTable: "product_images" });
 
   if (!filters.includeSold) query = query.eq("is_available", true);
+  if (filters.onSale) query = query.not("original_price", "is", null);
   if (filters.q) query = query.ilike("name", `%${escapeLike(filters.q)}%`);
   if (category) query = query.eq("category_id", category.id);
   if (filters.minPrice != null) query = query.gte("price", filters.minPrice);

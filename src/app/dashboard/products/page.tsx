@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/field";
 import { Badge } from "@/components/ui/misc";
 import { CONDITION_LABELS } from "@/lib/constants";
 import { getOwnProducts, getOwnShop } from "@/lib/data/owner";
-import { cn, formatPrice } from "@/lib/format";
+import { discountPercent, cn, formatPrice } from "@/lib/format";
 
 export const instant = false;
 
@@ -83,7 +83,7 @@ export default async function OwnerProductsPage({ searchParams }: PageProps<"/da
                 <div className="min-w-0">
                   <p className="truncate font-medium">{p.name}</p>
                   <p className="mt-0.5 text-[13px] text-muted">
-                    {formatPrice(p.price)} · {p.size} · {CONDITION_LABELS[p.condition]}
+                    {formatPrice(p.price)}{p.original_price ? ` (−${discountPercent(p.price, p.original_price)}%)` : ""} · {p.size} · {CONDITION_LABELS[p.condition]}
                     {p.category && ` · ${p.category.name}`}
                   </p>
                   <div className="mt-1.5 flex gap-1.5">

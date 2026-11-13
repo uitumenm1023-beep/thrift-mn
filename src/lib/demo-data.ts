@@ -126,18 +126,18 @@ export const DEMO_SHOPS: Shop[] = [
 type DemoProductInput = Pick<
   Product,
   "name" | "description" | "price" | "size" | "condition"
-> & { shop: number; category: string; photos: string[]; sold?: boolean };
+> & { shop: number; category: string; photos: string[]; sold?: boolean; was?: number };
 
 const products: DemoProductInput[] = [
   { shop: 5, category: "tops", name: "Саарал оверсайз hoodie", price: 65000, size: "L", condition: "excellent", photos: ["hoodie-stone"],
     description: "Зузаан хөвөн даавуун, чөлөөтэй загвартай hoodie. Дотроо зөөлөн хөвөнтэй, урд халаастай. Мөрний өргөн 58 см." },
-  { shop: 4, category: "outerwear", name: "Тэмээн өнгийн пальто", price: 175000, size: "M", condition: "excellent", photos: ["coat-camel"],
+  { shop: 4, category: "outerwear", name: "Тэмээн өнгийн пальто", price: 175000, was: 250000, size: "M", condition: "excellent", photos: ["coat-camel"],
     description: "80% ноостой хоёр эгнээ товчтой урт пальто. Химийн цэвэрлэгээнд оруулсан." },
   { shop: 3, category: "women", name: "Ногоон сүлжмэл кардиган", price: 72000, size: "M", condition: "excellent", photos: ["cardigan-forest"],
     description: "Гүн ногоон, гоёл хээтэй ноосон кардиган. Товч бүрэн, дулаахан." },
   { shop: 1, category: "shoes", name: "Бор арьсан челси гутал", price: 120000, size: "42", condition: "good", photos: ["boot-brown"],
     description: "Жинхэнэ арьсан бор челси гутал. Ул нь бат бөх. Хэмжээ EU 42." },
-  { shop: 3, category: "tops", name: "Ногоон hoodie", price: 59000, size: "M", condition: "excellent", photos: ["hoodie-forest"],
+  { shop: 3, category: "tops", name: "Ногоон hoodie", price: 59000, was: 79000, size: "M", condition: "excellent", photos: ["hoodie-forest"],
     description: "Гүн ногоон өнгийн hoodie. Өнгө нь гандаагүй, ширхэг үүсээгүй." },
   { shop: 1, category: "outerwear", name: "Хаки бомбер куртик", price: 98000, size: "M", condition: "excellent", photos: ["bomber-olive"],
     description: "Хаки ногоон бомбер. Цахилгаан товч бүрэн ажилладаг, зах, ханцуй, хормойдоо резинтэй." },
@@ -205,6 +205,7 @@ export const DEMO_PRODUCTS: Product[] = products.map((p, i) => {
     name: p.name,
     description: p.description,
     price: p.price,
+    original_price: p.was ?? null,
     size: p.size,
     condition: p.condition,
     is_available: !p.sold,

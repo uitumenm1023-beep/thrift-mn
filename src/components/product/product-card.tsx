@@ -2,11 +2,12 @@ import Image from "@/components/ui/smart-image";
 import Link from "next/link";
 import { Shirt } from "lucide-react";
 import { CONDITION_LABELS } from "@/lib/constants";
-import { formatPrice } from "@/lib/format";
+import { discountPercent, formatPrice } from "@/lib/format";
 import type { ProductCardData } from "@/lib/types";
 
 export function ProductCard({ product, priority = false }: { product: ProductCardData; priority?: boolean }) {
   const sold = !product.is_available;
+  const off = discountPercent(product.price, product.original_price);
 
   return (
     <article className="group relative">
@@ -29,6 +30,11 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
           )}
 
           <div className="absolute top-3 left-3 flex gap-1.5">
+            {off && !sold && (
+              <span className="rounded-full bg-glow px-2.5 py-1 font-mono text-[11px] font-semibold tracking-wide text-night shadow-[0_4px_16px_-4px_rgb(0_0_0/0.5)]">
+                -{off}%
+              </span>
+            )}
             {sold && (
               <span className="rounded-full bg-ink px-2.5 py-1 font-mono text-[10px] font-medium tracking-[0.12em] text-night uppercase">
                 Зарагдсан
@@ -48,7 +54,10 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
             {product.name}
           </h3>
           <div className="flex items-baseline justify-between gap-2">
-            <p className="font-mono text-[14px] font-medium text-glow">{formatPrice(product.price)}</p>
+            <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 font-mono text-[14px] font-medium text-glow">
+              {formatPrice(product.price)}
+              {off && <span className="text-[12px] font-normal text-muted line-through">{formatPrice(product.original_price!)}</span>}
+            </p>
             <p className="truncate text-[12px] text-muted">
               {product.size} · {CONDITION_LABELS[product.condition]}
             </p>
