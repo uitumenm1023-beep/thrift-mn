@@ -73,6 +73,7 @@ export const SHOP_STATUS_LABELS: Record<ShopStatus, string> = {
 };
 
 export const SORT_OPTIONS = [
+  { value: "mixed", label: "Холимог" },
   { value: "newest", label: "Шинээр нэмэгдсэн" },
   { value: "price_asc", label: "Үнэ: багаас их" },
   { value: "price_desc", label: "Үнэ: ихээс бага" },

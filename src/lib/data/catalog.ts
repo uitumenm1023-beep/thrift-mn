@@ -28,6 +28,10 @@ import { isUuid } from "@/lib/validation";
 
 export const CATALOG_TAG = "catalog";
 
+/** Any filterable products query (the builder type differs per select string). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ProductQuery = any;
+
 const CARD_SELECT =
   "id,name,price,original_price,size,condition,is_available,is_demo,created_at,shop:shops!inner(id,name,district),product_images(image_url,display_order)";
 
@@ -65,6 +69,52 @@ async function expirePlans() {
   const { error } = await createPublicClient().rpc("expire_plans");
   if (error) console.error("[catalog] expire_plans:", error.message);
 }
+
+// ---------- Mixed order ----------
+
+/** The mixed order reshuffles every 3 hours; within a window it is stable, so pages don't repeat items. */
+const MIX_WINDOW_MS = 3 * 60 * 60 * 1000;
+
+/** Small deterministic PRNG (mulberry32) so the same seed always gives the same order. */
+function rng(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Default catalog order. Higher packages still come first (boost), but inside
+ * each package level the products are shuffled and every shop's items are
+ * spread evenly through the list, so one shop that uploaded many products at
+ * once can't fill the first pages.
+ */
+function mixOrder<T extends { id: string; shop_id: string; boost: number }>(rows: T[], seed: number): T[] {
+  const rand = rng(seed);
+  const keyed = new Map<T, number>();
+  const tiers = new Map<number, T[]>();
+  for (const r of rows) tiers.set(r.boost, [...(tiers.get(r.boost) ?? []), r]);
+  for (const tier of tiers.values()) {
+    const byShop = new Map<string, T[]>();
+    for (const r of tier) byShop.set(r.shop_id, [...(byShop.get(r.shop_id) ?? []), r]);
+    for (const items of byShop.values()) {
+      // Fisher–Yates shuffle inside the shop, then place item k at (k + offset) / n.
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [items[i], items[j]] = [items[j]!, items[i]!];
+      }
+      const offset = rand(), n = items.length;
+      items.forEach((r, k) => keyed.set(r, (k + offset) / n + (rand() - 0.5) * (0.6 / n)));
+    }
+  }
+  return [...rows].sort((a, b) => b.boost - a.boost || keyed.get(a)! - keyed.get(b)!);
+}
+
+const mixSeed = () => Math.floor(Date.now() / MIX_WINDOW_MS);
 
 // ---------- Demo-mode helpers ----------
 
@@ -143,13 +193,16 @@ export async function getProducts(filters: ProductFilters): Promise<Paginated<Pr
         (!filters.districts.length ||
           filters.districts.includes(DEMO_SHOPS.find((s) => s.id === p.shop_id)?.district ?? "")),
     );
-    list = [...list].sort((a, b) =>
+    list =
+      filters.sort === "mixed"
+        ? mixOrder(list.map((p) => ({ ...p, boost: 0 })), mixSeed())
+        : [...list].sort((a, b) =>
       filters.sort === "price_asc"
         ? a.price - b.price
         : filters.sort === "price_desc"
           ? b.price - a.price
           : b.created_at.localeCompare(a.created_at),
-    );
+          );
     return {
       items: list.slice(from, from + PAGE_SIZE).map(demoCard),
       total: list.length,
@@ -158,32 +211,66 @@ export async function getProducts(filters: ProductFilters): Promise<Paginated<Pr
     };
   }
 
-  let query = createPublicClient()
-    .from("products")
-    .select(CARD_SELECT, { count: "exact" })
-    .order("display_order", { referencedTable: "product_images" })
-    .limit(1, { referencedTable: "product_images" });
+  // Same filters for both the card query and the mixed-order id query.
+  const withFilters = (query: ProductQuery): ProductQuery => {
+    let q = query;
+    if (!filters.includeSold) q = q.eq("is_available", true);
+    if (filters.onSale) q = q.not("original_price", "is", null);
+    if (filters.q) q = q.ilike("name", `%${escapeLike(filters.q)}%`);
+    if (category) q = q.eq("category_id", category.id);
+    if (filters.minPrice != null) q = q.gte("price", filters.minPrice);
+    if (filters.maxPrice != null) q = q.lte("price", filters.maxPrice);
+    if (filters.sizes.length) q = q.in("size", filters.sizes);
+    if (filters.conditions.length) q = q.in("condition", filters.conditions);
+    if (filters.shop) q = q.eq("shop_id", filters.shop);
+    if (filters.districts.length) q = q.in("shop.district", filters.districts);
+    return q;
+  };
 
-  if (!filters.includeSold) query = query.eq("is_available", true);
-  if (filters.onSale) query = query.not("original_price", "is", null);
-  if (filters.q) query = query.ilike("name", `%${escapeLike(filters.q)}%`);
-  if (category) query = query.eq("category_id", category.id);
-  if (filters.minPrice != null) query = query.gte("price", filters.minPrice);
-  if (filters.maxPrice != null) query = query.lte("price", filters.maxPrice);
-  if (filters.sizes.length) query = query.in("size", filters.sizes);
-  if (filters.conditions.length) query = query.in("condition", filters.conditions);
-  if (filters.shop) query = query.eq("shop_id", filters.shop);
-  if (filters.districts.length) query = query.in("shop.district", filters.districts);
+  await expirePlans();
+
+  if (filters.sort === "mixed") {
+    // 1) every matching id (light rows), 2) mix them, 3) load cards for this page only.
+    const { data: rows, error: idsError } = await withFilters(
+      createPublicClient().from("products").select("id,shop_id,boost,shop:shops!inner(district)").limit(5000),
+    );
+    if (idsError) fail("бараа", idsError);
+    const ordered = mixOrder((rows ?? []) as { id: string; shop_id: string; boost: number }[], mixSeed());
+    const pageIds = ordered.slice(from, from + PAGE_SIZE).map((r) => r.id);
+    const total = ordered.length;
+    if (!pageIds.length) return { items: [], total, page: filters.page, pageCount: Math.ceil(total / PAGE_SIZE) };
+    const { data: cards, error: cardsError } = await createPublicClient()
+      .from("products")
+      .select(CARD_SELECT)
+      .in("id", pageIds)
+      .order("display_order", { referencedTable: "product_images" })
+      .limit(1, { referencedTable: "product_images" });
+    if (cardsError) fail("бараа", cardsError);
+    const byId = new Map(((cards ?? []) as unknown as CardRow[]).map((c) => [c.id, toCard(c)]));
+    return {
+      items: pageIds.map((id) => byId.get(id)).filter((c): c is ProductCardData => !!c),
+      total,
+      page: filters.page,
+      pageCount: Math.ceil(total / PAGE_SIZE),
+    };
+  }
+
+  let query = withFilters(
+    createPublicClient()
+      .from("products")
+      .select(CARD_SELECT, { count: "exact" })
+      .order("display_order", { referencedTable: "product_images" })
+      .limit(1, { referencedTable: "product_images" }),
+  );
 
   query =
     filters.sort === "price_asc"
       ? query.order("price", { ascending: true }).order("created_at", { ascending: false })
       : filters.sort === "price_desc"
         ? query.order("price", { ascending: false }).order("created_at", { ascending: false })
-        : // Default order: bigger packages first (Max → Premium → Pro), then newest.
+        : // "Newest": bigger packages first (Max → Premium → Pro), then newest.
           query.order("boost", { ascending: false }).order("created_at", { ascending: false });
 
-  await expirePlans();
   const { data, error, count } = await query.range(from, from + PAGE_SIZE - 1);
   // Asking for a page past the end returns a range error — treat it as empty.
   if (error && error.code !== "PGRST103") fail("бараа", error);

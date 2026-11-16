@@ -47,7 +47,7 @@ export function parseProductFilters(sp: SearchParams): ProductFilters {
     shop: first(sp.shop).slice(0, 40),
     districts: all(sp.district).filter((d) => DISTRICTS.includes(d)),
     near: first(sp.near) === "1",
-    sort: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "newest",
+    sort: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "mixed",
     page: Number.isFinite(page) && page > 0 ? Math.min(page, 500) : 1,
     includeSold: first(sp.sold) === "1",
     onSale: first(sp.sale) === "1",
@@ -66,7 +66,7 @@ export function filtersToQuery(f: Partial<ProductFilters>) {
   if (f.shop) params.set("shop", f.shop);
   f.districts?.forEach((d) => params.append("district", d));
   if (f.near && f.districts?.length) params.set("near", "1");
-  if (f.sort && f.sort !== "newest") params.set("sort", f.sort);
+  if (f.sort && f.sort !== "mixed") params.set("sort", f.sort);
   if (f.onSale) params.set("sale", "1");
   if (f.includeSold) params.set("sold", "1");
   if (f.page && f.page > 1) params.set("page", String(f.page));
